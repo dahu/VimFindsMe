@@ -30,8 +30,12 @@ endif
 let g:loaded_vimfindsme = 1
 
 " Options: {{{1
-if !exists('g:vfm_ignore_extensions')
-  let g:vfm_ignore_extensions = ['\.sw.*']
+if !exists('g:vfm_hide_dirs')
+  let g:vfm_hide_dirs = 1
+endif
+
+if !exists('g:vfm_ignore')
+  let g:vfm_ignore = ['.hg', '.svn', '.git', 'CVS', '*.sw?']
 endif
 
 " Private Functions: {{{1
@@ -71,21 +75,26 @@ endfunction
 
 " Public Interface: {{{1
 function! VimFindsMe(path)
-  let paths = filter(split(a:path, '\\\@<!,'), 'v:val !~ "^\\(\\*\\*\\|;\\)$"')
+  let paths = filter(split(a:path, '\\\@<!,'), 'v:val !~ "^\s*;\s*$"')
   let cwd = getcwd()
+
   if index(paths, '.') != -1
     call add(paths, fnamemodify(expand('%'), ":p:h"))
   endif
-  if index(paths, '') != -1
+
+  if (index(paths, '') != -1) || (index(paths, '**') != -1)
     call add(paths, cwd)
   endif
 
-  call map(uniq(filter(paths, 'index(["", "."], v:val) == -1'))
-        \, 'substitute(v:val, "^" . cwd, "./", "")')
-  let find_prune = ' -regextype posix-extended -regex "(.*/\.git.*)|(.*('
-        \. join(g:vfm_ignore_extensions, '|')
-        \. ')$)" -prune -o -print'
-  let find_cmd ="find " . join(paths, " ") . find_prune
+  call map(uniq(filter(paths, 'index(["", ".", "**"], v:val) == -1'))
+        \, 'substitute(v:val, "^" . cwd, ".", "")')
+
+  let find_prune = ' '
+        \. join(map(copy(g:vfm_ignore),
+        \    ' "-name " . fnameescape(v:val) . " -prune "'), ' -o ')
+        \. '-o ' . (g:vfm_hide_dirs ? ' -type f ' : '') . ' -print'
+
+  let find_cmd ="find -L " . join(paths, " ") . find_prune
 
   call s:file_list_overlay(uniq(sort(split(system(find_cmd), "\n"))))
   nnoremap <buffer> q :call <SID>close_overlay()<cr>

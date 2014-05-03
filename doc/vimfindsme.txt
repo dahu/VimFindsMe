@@ -18,7 +18,14 @@ VimFindsMe is a light-weight, "fuzzy", |'path'| dependent file browser.
 NOTE: VFM depends on the system `find` command (and would therefore
       probably not work on Windows)
 
-NOTE: VFM will ignore ".git" directories by default.
+By default, VFM ignores:
+* ".svn", ".git", ".hg" and "CVS" directories
+* Vim swap files (*.sw?)
+
+This can be customised through the g:vfm_ignore list option.
+
+Bare directory entries are not shown in the browser. This can be customised
+with the g:vfm_hide_dirs boolean option.
 
 Launch VFM with:
 >
@@ -31,15 +38,23 @@ OR the key sequence <leader><tab> . This default can be changed by mapping
 ==============================================================================
  2. CONFIGURATION                               *vimfindsme-configuration*
 
-|'vfm_ignore_extensions'|	File-extensions for `find` to ignore.
+|'vfm_hide_dirs'|	Don't display bare directory names in the browser.
+|'vfm_ignore'|		Names for `find` to ignore.
 
 ------------------------------------------------------------------------------
-                                                    *'vimfindsme-option1'*
-Values: list of posix-extended (not Vim!) regular expressions                ~
-Default: ['\.sw.*']                                                          ~
+                                                         *'vfm_hide_dirs'*
+Values: boolean~
+Default: 1                                                                   ~
 
-This is a set of patterns used to match file-extensions to be ignored
-by the find command.
+This option controls whether bare directory entries are shown in the browser
+results. By default, they are not.
+
+------------------------------------------------------------------------------
+                                                            *'vfm_ignore'*
+Values: list of glob expressions                ~
+Default: ['.hg', '.svn', '.git', 'CVS', '*.sw?']~
+
+This is a set of globs used to match names to be ignored by the find command.
 
 ==============================================================================
  3. FUZZY                                               *vimfindsme-fuzzy*
