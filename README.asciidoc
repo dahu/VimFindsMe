@@ -10,6 +10,11 @@ http://of-vim-and-vigor.blogspot.com/[beverages].
 NOTE: Depends on the system `find` command (and would therefore
       probably not work on Windows)
 
+VFM relies on your +path+ option. Setting this to a Good Value is crucial
+for getting the best out of VFM. Begin with this entry in your +~/.vimrc+ :
+
+  set path=.,**
+
 .Defaults
 ====
 * Ignores version-control directories and Vim swap files by default

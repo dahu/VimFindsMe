@@ -18,14 +18,20 @@ VimFindsMe is a light-weight, "fuzzy", |'path'| dependent file browser.
 NOTE: VFM depends on the system `find` command (and would therefore
       probably not work on Windows)
 
+VFM relies on your |'path'| option. Setting this to a Good Value is crucial
+for getting the best out of VFM. Begin with this entry in your |$MYVIMRC|:
+>
+  set path=.,**
+<
+
 By default, VFM ignores:
 * ".svn", ".git", ".hg" and "CVS" directories
 * Vim swap files (*.sw?)
 
-This can be customised through the g:vfm_ignore list option.
+This can be customised through the |vfm_ignore| list option.
 
 Bare directory entries are not shown in the browser. This can be customised
-with the g:vfm_hide_dirs boolean option.
+with the |vfm_hide_dirs| boolean option.
 
 Launch VFM with:
 >
@@ -33,7 +39,10 @@ Launch VFM with:
 <
 
 OR the key sequence <leader><tab> . This default can be changed by mapping
-<plug>vfm_browse .
+<plug>vfm_browse with an entry in your |$MYVIMRC| like:
+>
+  nmap <left> <plug>vfm_browse
+<
 
 VFM will start with a search prompt so you can begin to find the file you're
 after. If after your search you would like to apply it as a filter, type:
