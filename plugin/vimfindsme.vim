@@ -65,7 +65,11 @@ function! s:file_list_overlay(files)
   delete _
   redraw
   1
-  call feedkeys('/')
+  if exists(':Filter')
+    Filter
+  else
+    call feedkeys('/')
+  endif
 endfunction
 
 function! s:close_overlay()
@@ -145,7 +149,7 @@ function! VimFindsMe(path)
 endfunction
 
 " Maps: {{{1
-nnoremap <Plug>vfm_browse :call VimFindsMe(&path)<CR>
+nnoremap <silent> <Plug>vfm_browse :call VimFindsMe(&path)<CR>
 
 if !hasmapto('<Plug>vfm_browse')
   nmap <unique><silent> <leader><tab> <Plug>vfm_browse
