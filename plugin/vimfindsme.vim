@@ -141,6 +141,7 @@ function! VimFindsMe(path)
   let find_depth = (g:vfm_maxdepth == -1 ? '' : ' -maxdepth ' . g:vfm_maxdepth)
 
   let find_cmd ="find -L " . join(paths, " ") . find_depth . find_prune
+        \. ' 2>/dev/null'
 
   call s:file_list_overlay(s:uniq(sort(split(system(find_cmd), "\n"))))
   nnoremap <buffer> q :call <SID>close_overlay()<cr>
