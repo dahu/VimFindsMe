@@ -19,7 +19,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 if exists("g:loaded_vimfindsme")
-      \ || v:version < 704
+      \ || v:version < 703
       \ || &compatible
   let &cpo = s:save_cpo
   echohl Warning
@@ -63,7 +63,7 @@ function! s:close_overlay()
   bwipe #
   if buflisted(s:altbuf)
     exe 'buffer ' . s:altbuf
-    buffer #
+    silent! buffer #
   endif
 endfunction
 
@@ -71,6 +71,21 @@ function! s:select_file()
   let fname=getline('.')
   call s:close_overlay()
   exe "edit " . fnameescape(fname)
+endfunction
+
+function! s:uniq(list)
+  if exists('*uniq')
+    return uniq(a:list)
+  endif
+  let mlist = copy(a:list)
+  let idx = len(a:list) - 1
+  while idx >= 1
+    if index(mlist, mlist[idx]) < idx
+      call remove(a:list, idx)
+    endif
+    let idx -= 1
+  endwhile
+  return a:list
 endfunction
 
 " Public Interface: {{{1
@@ -86,8 +101,19 @@ function! VimFindsMe(path)
     call add(paths, cwd)
   endif
 
-  call map(uniq(filter(paths, 'index(["", ".", "**"], v:val) == -1'))
+  call map(s:uniq(sort(filter(paths, 'index(["", ".", "**"], v:val) == -1')))
         \, 'substitute(v:val, "^" . cwd, ".", "")')
+
+  if cwd == expand('$HOME')
+    echohl Warning
+    echom "VFM skipping $HOME"
+    echohl None
+    call remove(paths, index(paths, '.'))
+  endif
+
+  if empty(paths)
+    return
+  endif
 
   let find_prune = ' '
         \. join(map(copy(g:vfm_ignore),
@@ -96,8 +122,9 @@ function! VimFindsMe(path)
 
   let find_cmd ="find -L " . join(paths, " ") . find_prune
 
-  call s:file_list_overlay(uniq(sort(split(system(find_cmd), "\n"))))
+  call s:file_list_overlay(s:uniq(sort(split(system(find_cmd), "\n"))))
   nnoremap <buffer> q :call <SID>close_overlay()<cr>
+  nnoremap <buffer> cv :v//d<cr>
   nnoremap <buffer> <enter> :call <SID>select_file()<cr>
 endfunction
 

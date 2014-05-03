@@ -35,6 +35,13 @@ Launch VFM with:
 OR the key sequence <leader><tab> . This default can be changed by mapping
 <plug>vfm_browse .
 
+VFM will start with a search prompt so you can begin to find the file you're
+after. If after your search you would like to apply it as a filter, type:
+>
+  :v//d
+<
+or use the builtin map "cv" which does the same thing.
+
 ==============================================================================
  2. CONFIGURATION                               *vimfindsme-configuration*
 
