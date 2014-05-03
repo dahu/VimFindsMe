@@ -1,6 +1,6 @@
 " Vim global plugin for browsing files in your &path
 " Maintainer:	Barry Arthur <barry.arthur@gmail.com>
-" Version:	0.1
+" Version:	0.2
 " Description:	"fuzzy" file finder using mostly vim internals
 "		and the system find comand.
 " Last Change:	2014-05-03
@@ -29,13 +29,23 @@ if exists("g:loaded_vimfindsme")
 endif
 let g:loaded_vimfindsme = 1
 
+let g:vfm_version = '0.2'
+
 " Options: {{{1
+if !exists('g:vfm_skip_home')
+  let g:vfm_skip_home = 1
+endif
+
+if !exists('g:vfm_maxdepth')
+  let g:vfm_maxdepth = 4
+endif
+
 if !exists('g:vfm_hide_dirs')
   let g:vfm_hide_dirs = 1
 endif
 
 if !exists('g:vfm_ignore')
-  let g:vfm_ignore = ['.hg', '.svn', '.git', 'CVS', '*.sw?']
+  let g:vfm_ignore = ['.hg', '.svn', '.bzr', '.git', 'CVS', '*.sw?']
 endif
 
 " Private Functions: {{{1
@@ -104,14 +114,18 @@ function! VimFindsMe(path)
   call map(s:uniq(sort(filter(paths, 'index(["", ".", "**"], v:val) == -1')))
         \, 'substitute(v:val, "^" . cwd, ".", "")')
 
-  if cwd == expand('$HOME')
+  if empty(paths)
+    echohl Warning
+    echom "VFM has nothing to do: paths empty."
+    echohl None
+    return
+  endif
+
+  if (cwd == fnamemodify('$HOME', ':p:h')) && (index(paths, '.') != -1)
+        \ && (g:vfm_maxdepth == -1) && (g:vfm_skip_home != 0)
     echohl Warning
     echom "VFM skipping $HOME"
     echohl None
-    call remove(paths, index(paths, '.'))
-  endif
-
-  if empty(paths)
     return
   endif
 
@@ -120,7 +134,9 @@ function! VimFindsMe(path)
         \    ' "-name " . fnameescape(v:val) . " -prune "'), ' -o ')
         \. '-o ' . (g:vfm_hide_dirs ? ' -type f ' : '') . ' -print'
 
-  let find_cmd ="find -L " . join(paths, " ") . find_prune
+  let find_depth = (g:vfm_maxdepth == -1 ? '' : ' -maxdepth ' . g:vfm_maxdepth)
+
+  let find_cmd ="find -L " . join(paths, " ") . find_depth . find_prune
 
   call s:file_list_overlay(s:uniq(sort(split(system(find_cmd), "\n"))))
   nnoremap <buffer> q :call <SID>close_overlay()<cr>

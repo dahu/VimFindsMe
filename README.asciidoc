@@ -7,15 +7,26 @@ TIP: If you like VimFindsMe and want to share the W00t!, I'm grateful for
 https://www.gittip.com/bairuidahu/[tips] or
 http://of-vim-and-vigor.blogspot.com/[beverages].
 
-[NOTE]
+NOTE: Depends on the system `find` command (and would therefore
+      probably not work on Windows)
+
+.Defaults
 ====
-* Depends on the system `find` command (and would therefore
-  probably not work on Windows)
+* Ignores version-control directories and Vim swap files by default
++
+    let vfm_ignore = ['.hg', '.svn', '.bzr', '.git', 'CVS', '*.sw?']
 
-* Ignores ".git" directories by default.
+* Doesn't show bare directories in browse results
++
+    let vfm_hide_dirs = 1
 
-* Ignores Vim swap files by default and is configurable via
-  `g:vfm_ignore_extensions`
+* Defaults to a maximum directory depth of 4
++
+    let vfm_maxdepth = 4
+
+* Defaults to skipping your $HOME directory (if vfm_maxdepth is disabled)
++
+    let vfm_skip_home = 1
 ====
 
 :VFM
@@ -28,6 +39,11 @@ window. Press ``q'' to quit the browser buffer without making a file
 selection.
 
 By default, VFM uses `<leader><tab>` to launch its browser. This can
-be overridden through the <plug>vfm_browse map.
+be overridden through the `<plug>vfm_browse` map.
+
+The file browser opens with a search prompt. If your search term is
+too sparsely represented within the browse results, use the `cv`
+command to filter the buffer down to only those lines matching your
+search.
 
 See the documentation for more details.

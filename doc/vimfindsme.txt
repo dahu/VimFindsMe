@@ -47,6 +47,8 @@ or use the builtin map "cv" which does the same thing.
 
 |'vfm_hide_dirs'|	Don't display bare directory names in the browser.
 |'vfm_ignore'|		Names for `find` to ignore.
+|'vfm_maxdepth'|	`find` argument -maxdepth to limit recurse level.
+|'vfm_skip_home'|	Try not to find from $HOME.
 
 ------------------------------------------------------------------------------
                                                          *'vfm_hide_dirs'*
@@ -59,9 +61,25 @@ results. By default, they are not.
 ------------------------------------------------------------------------------
                                                             *'vfm_ignore'*
 Values: list of glob expressions                ~
-Default: ['.hg', '.svn', '.git', 'CVS', '*.sw?']~
+Default: ['.hg', '.svn', '.bzr', '.git', 'CVS', '*.sw?']~
 
 This is a set of globs used to match names to be ignored by the find command.
+
+------------------------------------------------------------------------------
+                                                          *'vfm_maxdepth'*
+Values: integer~
+Default: 4~
+
+This is the maximum directory depth for `find` to descend into. Use a value
+of -1 to not limit depth (but be aware that you might have long delays.)
+
+------------------------------------------------------------------------------
+                                                         *'vfm_skip_home'*
+Values: boolean~
+Default: 1~
+
+This option attempts to prevent VFM from searching within your $HOME
+directory. It only takes effect when g:vfm_maxdepth == -1 (i.e. disabled).
 
 ==============================================================================
  3. FUZZY                                               *vimfindsme-fuzzy*
