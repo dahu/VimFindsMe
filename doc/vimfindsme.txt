@@ -1,0 +1,63 @@
+*vimfindsme.txt*	"fuzzy" |'path'| file browser
+
+
+			VIM REFERENCE MANUAL	by Barry Arthur
+
+
+Help on using vimfindsme                                  *vfm* *vimfindsme*
+
+1. Introduction				|vimfindsme-intro|
+2. Configuration			|vimfindsme-configuration|
+3. Fuzzy				|vimfindsme-fuzzy|
+
+==============================================================================
+ 1. INTRODUCTION                                        *vimfindsme-intro*
+
+VimFindsMe is a light-weight, "fuzzy", |'path'| dependent file browser.
+
+NOTE: VFM depends on the system `find` command (and would therefore
+      probably not work on Windows)
+
+NOTE: VFM will ignore ".git" directories by default.
+
+Launch VFM with:
+>
+  :VFM
+<
+
+OR the key sequence <leader><tab> . This default can be changed by mapping
+<plug>vfm_browse .
+
+==============================================================================
+ 2. CONFIGURATION                               *vimfindsme-configuration*
+
+|'vfm_ignore_extensions'|	File-extensions for `find` to ignore.
+
+------------------------------------------------------------------------------
+                                                    *'vimfindsme-option1'*
+Values: list of posix-extended (not Vim!) regular expressions                ~
+Default: ['\.sw.*']                                                          ~
+
+This is a set of patterns used to match file-extensions to be ignored
+by the find command.
+
+==============================================================================
+ 3. FUZZY                                               *vimfindsme-fuzzy*
+
+The label on the box promised you "fuzzy" so here it is. The found
+files are opened in a new Vim buffer. You have ALL of Vim at your
+disposal now to search through this list and whittle it down to your
+desired file. VFM actually starts a search for you to more quickly
+accomplish this.
+
+PRO TIP: After you've done your first search within the VFM buffer and
+the exact file you're looking for is not immediately visible, try:
+>
+    :v//d
+<
+to limit the list to only those files matching your search.
+
+If that's not fuzzy enough for you, buy a hair-drier.
+
+Template From: https://github.com/dahu/Area-41/
+ vim:tw=78:ts=8:ft=help:norl:
