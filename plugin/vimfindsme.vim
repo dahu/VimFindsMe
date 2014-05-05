@@ -82,11 +82,11 @@ endfunction
 
 function! s:close_overlay()
   if g:vfm_use_split
-    wincmd p
+    wincmd q
   else
     buffer #
+    bwipe #
   endif
-  bwipe #
   if buflisted(s:altbuf)
     exe 'buffer ' . s:altbuf
     silent! buffer #
