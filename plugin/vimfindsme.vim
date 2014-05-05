@@ -81,7 +81,11 @@ function! s:file_list_overlay(files)
 endfunction
 
 function! s:close_overlay()
-  buffer #
+  if g:vfm_use_split
+    wincmd p
+  else
+    buffer #
+  endif
   bwipe #
   if buflisted(s:altbuf)
     exe 'buffer ' . s:altbuf
@@ -91,8 +95,8 @@ endfunction
 
 function! s:select_file()
   let fname=getline('.')
-  call s:close_overlay()
   if !g:vfm_use_split
+    call s:close_overlay()
     exe "edit " . fnameescape(fname)
   else
     exe "wincmd p | edit " . fnameescape(fname)
