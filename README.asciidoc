@@ -32,6 +32,10 @@ for getting the best out of VFM. Begin with this entry in your +~/.vimrc+ :
 * Defaults to skipping your $HOME directory (if vfm_maxdepth is disabled)
 +
     let vfm_skip_home = 1
+
+* Defaults to using the current buffer for the results browser
++
+    let vfm_use_split = 0
 ====
 
 :VFM
