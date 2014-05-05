@@ -133,6 +133,8 @@ function! VimFindsMe(path)
     return
   endif
 
+  call map(paths, 'fnameescape(v:val)')
+
   let find_prune = ' '
         \. join(map(copy(g:vfm_ignore),
         \    ' "-name " . fnameescape(v:val) . " -prune "'), ' -o ')
