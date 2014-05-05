@@ -36,6 +36,10 @@ if !exists('g:vfm_skip_home')
   let g:vfm_skip_home = 1
 endif
 
+if !exists('g:vfm_use_split')
+  let g:vfm_use_split = 0
+endif
+
 if !exists('g:vfm_maxdepth')
   let g:vfm_maxdepth = 4
 endif
@@ -52,7 +56,11 @@ endif
 function! s:file_list_overlay(files)
   let s:altbuf = bufnr('#')
 
-  hide noautocmd enew
+  if !g:vfm_use_split
+    hide noautocmd enew
+  else
+    hide noautocmd split enew
+  endif
   setlocal buftype=nofile
   setlocal bufhidden=hide
   setlocal noswapfile
@@ -84,7 +92,12 @@ endfunction
 function! s:select_file()
   let fname=getline('.')
   call s:close_overlay()
-  exe "edit " . fnameescape(fname)
+  if !g:vfm_use_split
+    exe "edit " . fnameescape(fname)
+  else
+    exe "wincmd p | edit " . fnameescape(fname)
+    exe "wincmd p | close"
+  endif
 endfunction
 
 function! s:uniq(list)
