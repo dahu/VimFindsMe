@@ -58,6 +58,7 @@ or use the builtin map "cv" which does the same thing.
 |'vfm_ignore'|		Names for `find` to ignore.
 |'vfm_maxdepth'|	`find` argument -maxdepth to limit recurse level.
 |'vfm_skip_home'|	Try not to find from $HOME.
+|'vfm_use_split'|	Use a split for the browser.
 
 ------------------------------------------------------------------------------
                                                          *'vfm_hide_dirs'*
@@ -89,6 +90,14 @@ Default: 1~
 
 This option attempts to prevent VFM from searching within your $HOME
 directory. It only takes effect when g:vfm_maxdepth == -1 (i.e. disabled).
+
+------------------------------------------------------------------------------
+                                                         *'vfm_use_split'*
+Values: boolean~
+Default: 0~
+
+This option will create a new split for the browser instead of using the
+current buffer as the browser.
 
 ==============================================================================
  3. FUZZY                                               *vimfindsme-fuzzy*
