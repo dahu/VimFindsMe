@@ -56,11 +56,10 @@ endif
 function! s:file_list_overlay(files)
   let s:altbuf = bufnr('#')
 
-  if !g:vfm_use_split
-    hide noautocmd enew
-  else
-    hide noautocmd split enew
+  if g:vfm_use_split
+    hide noautocmd split
   endif
+  hide noautocmd enew
   setlocal buftype=nofile
   setlocal bufhidden=hide
   setlocal noswapfile
@@ -81,23 +80,24 @@ function! s:file_list_overlay(files)
 endfunction
 
 function! s:close_overlay()
-  buffer #
-  bwipe #
-  if buflisted(s:altbuf)
-    exe 'buffer ' . s:altbuf
-    silent! buffer #
+  if g:vfm_use_split
+    let scratch_buf = bufnr('')
+    wincmd q
+    exe 'bwipe ' . scratch_buf
+  else
+    buffer #
+    bwipe #
+    if buflisted(s:altbuf)
+      exe 'buffer ' . s:altbuf
+      silent! buffer #
+    endif
   endif
 endfunction
 
 function! s:select_file()
-  let fname=getline('.')
+  let fname = getline('.')
   call s:close_overlay()
-  if !g:vfm_use_split
-    exe "edit " . fnameescape(fname)
-  else
-    exe "wincmd p | edit " . fnameescape(fname)
-    exe "wincmd p | close"
-  endif
+  exe "edit " . fnameescape(fname)
 endfunction
 
 function! s:uniq(list)
@@ -155,7 +155,7 @@ function! VimFindsMe(path)
 
   let find_depth = (g:vfm_maxdepth == -1 ? '' : ' -maxdepth ' . g:vfm_maxdepth)
 
-  let find_cmd ="find -L " . join(paths, " ") . find_depth . find_prune
+  let find_cmd = "find -L " . join(paths, " ") . find_depth . find_prune
         \. ' 2>/dev/null'
 
   call s:file_list_overlay(s:uniq(sort(split(system(find_cmd), "\n"))))
