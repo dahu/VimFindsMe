@@ -1,12 +1,12 @@
 " Vim global plugin for browsing files in your &path
-" Maintainer:	Barry Arthur <barry.arthur@gmail.com>
-" Version:	0.2
-" Description:	"fuzzy" file finder using mostly vim internals
-"		and the system find comand.
-" Last Change:	2014-05-03
-" License:	Vim License (see :help license)
-" Location:	plugin/vimfindsme.vim
-" Website:	https://github.com/dahu/vimfindsme
+" Maintainer:   Barry Arthur <barry.arthur@gmail.com>
+" Version:      0.3
+" Description:  "fuzzy" file finder using mostly vim internals
+"               and the system find comand.
+" Last Change:  2014-05-08
+" License:      Vim License (see :help license)
+" Location:     plugin/vimfindsme.vim
+" Website:      https://github.com/dahu/vimfindsme
 "
 " See vimfindsme.txt for help.  This can be accessed by doing:
 "
@@ -23,15 +23,27 @@ if exists("g:loaded_vimfindsme")
       \ || &compatible
   let &cpo = s:save_cpo
   echohl Warning
-  echom "VimFindsMe depends on Vim 7.4 or later"
+  echom "VimFindsMe depends on Vim 7.3 or later"
   echohl None
   finish
 endif
-let g:loaded_vimfindsme = 1
 
-let g:vfm_version = '0.2'
+let g:loaded_vimfindsme = 1
+let g:vfm_version = '0.3'
 
 " Options: {{{1
+if !exists('g:vfm_auto_act_on_single_filter_result')
+  let g:vfm_auto_act_on_single_filter_result = 1
+endif
+
+if !exists('g:vfm_store_dirs')
+  let g:vfm_store_dirs = 1
+endif
+
+if !exists('g:vfm_dirs_file')
+  let g:vfm_dirs_file = expand('<sfile>:p:h:h') . '/user_dirs'
+endif
+
 if !exists('g:vfm_skip_home')
   let g:vfm_skip_home = 1
 endif
@@ -53,70 +65,18 @@ if !exists('g:vfm_ignore')
 endif
 
 " Private Functions: {{{1
-function! s:file_list_overlay(files)
-  let s:altbuf = bufnr('#')
 
-  if g:vfm_use_split
-    hide noautocmd split
-  endif
-  hide noautocmd enew
-  setlocal buftype=nofile
-  setlocal bufhidden=hide
-  setlocal noswapfile
-  let old_is = &incsearch
-  set incsearch
-  let old_hls = &hlsearch
-  set hlsearch
-  call append(0, a:files)
-  $
-  delete _
-  redraw
-  1
-  if exists(':Filter')
-    Filter
-  else
-    call feedkeys('/')
-  endif
-endfunction
-
-function! s:close_overlay()
-  if g:vfm_use_split
-    let scratch_buf = bufnr('')
-    wincmd q
-    exe 'bwipe ' . scratch_buf
-  else
-    buffer #
-    bwipe #
-    if buflisted(s:altbuf)
-      exe 'buffer ' . s:altbuf
-      silent! buffer #
-    endif
-  endif
-endfunction
-
-function! s:select_file()
-  let fname = getline('.')
-  call s:close_overlay()
-  exe "edit " . fnameescape(fname)
-endfunction
-
-function! s:uniq(list)
-  if exists('*uniq')
-    return uniq(a:list)
-  endif
-  let mlist = copy(a:list)
-  let idx = len(a:list) - 1
-  while idx >= 1
-    if index(mlist, mlist[idx]) < idx
-      call remove(a:list, idx)
-    endif
-    let idx -= 1
-  endwhile
-  return a:list
-endfunction
+function s:SID()
+  return "<SNR>" . matchstr(expand('<sfile>'), '<SNR>\zs\d\+_\zeSID$')
+endfun
 
 " Public Interface: {{{1
 function! VimFindsMe(path)
+  echom "Warning: The function name 'VimFindsMe' is deprecated. Use 'VimFindsMeFiles' instead."
+  return VimFindsMeFiles(a:path)
+endfunction
+
+function! VimFindsMeFiles(path)
   let paths = filter(split(a:path, '\\\@<!,'), 'v:val !~ "^\s*;\s*$"')
   let cwd = getcwd()
 
@@ -128,7 +88,7 @@ function! VimFindsMe(path)
     call add(paths, cwd)
   endif
 
-  call map(s:uniq(sort(filter(paths, 'index(["", ".", "**"], v:val) == -1')))
+  call map(vfm#uniq(sort(filter(paths, 'index(["", ".", "**"], v:val) == -1')))
         \, 'substitute(v:val, "^" . cwd, ".", "")')
 
   if empty(paths)
@@ -158,21 +118,58 @@ function! VimFindsMe(path)
   let find_cmd = "find -L " . join(paths, " ") . find_depth . find_prune
         \. ' 2>/dev/null'
 
-  call s:file_list_overlay(s:uniq(sort(split(system(find_cmd), "\n"))))
-  nnoremap <buffer> q :call <SID>close_overlay()<cr>
-  nnoremap <buffer> cv :v//d<cr>
-  nnoremap <buffer> <enter> :call <SID>select_file()<cr>
+  call vfm#file_list_overlay(vfm#uniq(sort(split(system(find_cmd), "\n"))))
+  call vfm#overlay_controller({'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())'})
+
+endfunction
+
+function! s:vfm_dirs_callback()
+  exe ':cd ' . vfm#select_line()
+  pwd
+endfunction
+
+function! VimFindsMeDirs()
+  call vfm#file_list_overlay(vfm#readfile(g:vfm_dirs_file))
+  call vfm#overlay_controller({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()'})
+endfunction
+
+function! s:vfm_paths_callback()
+  exe 'set path=' . join(vfm#select_buffer(), ',')
+endfunction
+
+function! VimFindsMePaths()
+  call vfm#file_list_overlay(map(split(&path, '\\\@<!,'), 'escape(v:val, "\\ ")'))
+  call vfm#overlay_controller({'<enter>' : ':call ' . s:SID() . 'vfm_paths_callback()'})
 endfunction
 
 " Maps: {{{1
-nnoremap <silent> <Plug>vfm_browse :call VimFindsMe(&path)<CR>
+nnoremap <silent> <plug>vfm_browse_files  :call VimFindsMeFiles(&path)<CR>
+nnoremap <silent> <plug>vfm_browse_dirs   :call VimFindsMeDirs()<CR>
+nnoremap <silent> <plug>vfm_browse_paths  :call VimFindsMePaths()<CR>
 
-if !hasmapto('<Plug>vfm_browse')
-  nmap <unique><silent> <leader><tab> <Plug>vfm_browse
+if !hasmapto('<Plug>vfm_browse_files')
+  nmap <unique><silent> <leader>ge <Plug>vfm_browse_files
+endif
+
+if !hasmapto('<Plug>vfm_browse_dirs')
+  nmap <unique><silent> <leader>gd <Plug>vfm_browse_dirs
+endif
+
+if !hasmapto('<Plug>vfm_browse_paths')
+  nmap <unique><silent> <leader>gp <Plug>vfm_browse_paths
 endif
 
 " Commands: {{{1
-command! -nargs=0 -bar VFM call VimFindsMe(&path)
+command! -nargs=0 -bar VFMFiles  call VimFindsMeFiles(&path)
+command! -nargs=0 -bar VFMDirs   call VimFindsMeDirs()
+command! -nargs=0 -bar VFMPaths  call VimFindsMePaths()
+
+" Autocommands {{{1
+" runtime autoload/vfm.vim
+augroup VimFindsMe
+  au!
+  au BufRead * call vfm#store_directory()
+augroup END
 
 " Teardown:{{{1
 "reset &cpo back to users setting
