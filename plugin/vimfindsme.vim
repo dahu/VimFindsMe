@@ -135,9 +135,8 @@ endfunction
 
 function! s:vfm_opts_callback(opt)
   let val = join(map(vfm#select_buffer()
-        \ , 'substitute(v:val, "\\\\\\@<![ ,]", "\\\\&", "g")')
+        \ , 'substitute(v:val, "\\\\\\@<!,", "\\\\&", "g")')
         \ , ',')
-  " exe 'let &' . a:opt . " = '" . escape(val, "'\"") . "'"
   exe 'let &' . a:opt . ' =  "' . escape(val, '\\"') . '"'
 endfunction
 
@@ -152,15 +151,14 @@ function! VimFindsMeOpts(opt)
 endfunction
 
 " Commands: {{{1
-command! -nargs=0 -bar VFMFiles  call VimFindsMeFiles(&path)
-command! -nargs=0 -bar VFMDirs   call VimFindsMeDirs()
-command! -nargs=0 -bar VFMPaths  call VimFindsMeOpts('&path')
+command! -nargs=0 -bar VFMEdit   call VimFindsMeFiles(&path)
+command! -nargs=0 -bar VFMCD     call VimFindsMeDirs()
 command! -nargs=1 -bar VFMOpts   call VimFindsMeOpts(<q-args>)
 
 " Maps: {{{1
-nnoremap <silent> <plug>vfm_browse_files  :VFMFiles<CR>
-nnoremap <silent> <plug>vfm_browse_dirs   :VFMDirs<CR>
-nnoremap <silent> <plug>vfm_browse_paths  :VFMPaths<CR>
+nnoremap <silent> <plug>vfm_browse_files  :VFMEdit<CR>
+nnoremap <silent> <plug>vfm_browse_dirs   :VFMCD<CR>
+nnoremap <silent> <plug>vfm_browse_paths  :call VimFindsMeOpts('&path')<CR>
 
 if !hasmapto('<Plug>vfm_browse_files')
   nmap <unique><silent> <leader>ge <Plug>vfm_browse_files

@@ -22,23 +22,23 @@ user-defined item browsing and actuation.
 ==============================================================================
  2. COMMANDS                                         *vimfindsme-commands*
 
-                                                                *VFMFiles*
-:VFMFiles~
+                                                                *VFMEdit*
+:VFMEdit~
 
-NOTE: VFMFiles depends on the system `find` command (and would therefore
+NOTE: VFMEdit depends on the system `find` command (and would therefore
       probably not work on Windows)
 
 NOTE: VimFindsMe uses the Vimple Filter if you have
       https://github.com/dahu/Vimple installed.
 
-VFMFiles relies on your |'path'| option. Setting this to a Good Value is
+VFMEdit relies on your |'path'| option. Setting this to a Good Value is
 crucial for getting the best out of VFM. Begin with this entry in your
 |$MYVIMRC|:
 >
   set path=.,**
 <
 
-By default, VFMFiles ignores:
+By default, VFMEdit ignores:
 * ".svn", ".git", ".hg" and "CVS" directories
 * Vim swap files (*.sw?)
 
@@ -47,9 +47,9 @@ This can be customised through the |vfm_ignore| list option.
 Bare directory entries are not shown in the browser. This can be customised
 with the |vfm_hide_dirs| boolean option.
 
-Launch VFMFiles with:
+Launch VFMEdit with:
 >
-  :VFMFiles
+  :VFMEdit
 <
 
 OR the key sequence <leader>ge . This default can be changed by mapping
@@ -58,7 +58,7 @@ OR the key sequence <leader>ge . This default can be changed by mapping
   nmap <left> <plug>vfm_browse_files
 <
 
-VFMFiles will start with the Vimple Filter (if you have Vimple installed, or if
+VFMEdit will start with the Vimple Filter (if you have Vimple installed, or if
 not, a search prompt) so you can type to find the file you're after.
 
 If you don't have Vimple installed, you can filter the buffer with your prior
@@ -68,10 +68,10 @@ search by doing:
 <
 or use the builtin map "cv" which does the same thing.
 
-                                                                 *VFMDirs*
-:VFMDirs~
+                                                                   *VFMCD*
+:VFMCD~
 
-The VFMDirs command displays the set of directories you have edited in a
+The VFMCD command displays the set of directories you have edited in a
 scratch buffer. Pressing |<enter>| on one of the directories performs a |:cd|
 to that directory. This is handy when using the recommended VFM |&path|
 setting:
@@ -88,12 +88,6 @@ buffer. Pressing enter sets the option to the lines in the buffer
 and messy comma separated options in vim, like: |'path'|,
 |'runtimepath'|, |'errorformat'|, etc.
 
-                                                                *VFMPaths*
-:VFMPaths~
-
-The VFMPaths command demonstrates the |VFMOpts| command using the
-|'path'| option.
-
 ==============================================================================
  3. CONFIGURATION                               *vimfindsme-configuration*
 
@@ -108,7 +102,7 @@ The VFMPaths command demonstrates the |VFMOpts| command using the
 Values: boolean~
 Default: 1                                                                   ~
 
-Affects VFMFiles only.
+Affects VFMEdit only.
 
 This option controls whether bare directory entries are shown in the browser
 results. By default, they are not.
@@ -118,7 +112,7 @@ results. By default, they are not.
 Values: list of glob expressions                ~
 Default: ['.hg', '.svn', '.bzr', '.git', 'CVS', '*.sw?']~
 
-Affects VFMFiles only.
+Affects VFMEdit only.
 
 This is a set of globs used to match names to be ignored by the find command.
 
@@ -127,7 +121,7 @@ This is a set of globs used to match names to be ignored by the find command.
 Values: integer~
 Default: 4~
 
-Affects VFMFiles only.
+Affects VFMEdit only.
 
 This is the maximum directory depth for `find` to descend into. Use a value
 of -1 to not limit depth (but be aware that you might have long delays.)
@@ -137,7 +131,7 @@ of -1 to not limit depth (but be aware that you might have long delays.)
 Values: boolean~
 Default: 1~
 
-Affects VFMFiles only.
+Affects VFMEdit only.
 
 This option attempts to prevent VFM from searching within your $HOME
 directory. It only takes effect when g:vfm_maxdepth == -1 (i.e. disabled).
