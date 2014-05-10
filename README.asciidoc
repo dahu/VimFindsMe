@@ -1,5 +1,5 @@
 VimFindsMe
-----------
+--------- -
 
 __light-weight, "fuzzy", &path dependent file browser for Vim on *nix__
 
@@ -60,7 +60,7 @@ The ++:VFMFiles++ command does a system `find` within the paths in your
 window. Press ``q'' to quit the browser buffer without making a file
 selection.
 
-By default, ++VFMFiles++ uses `<leader><tab>` to launch its browser.
+By default, ++VFMFiles++ uses `<leader>ge` to launch its browser.
 This can be overridden through the `<plug>vfm_browse_files` map.
 
 The file browser opens with the Vimple Filter (if vimple is installed,

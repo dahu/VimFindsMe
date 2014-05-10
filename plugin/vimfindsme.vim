@@ -137,7 +137,8 @@ function! s:vfm_opts_callback(opt)
   let val = join(map(vfm#select_buffer()
         \ , 'substitute(v:val, "\\\\\\@<![ ,]", "\\\\&", "g")')
         \ , ',')
-  exe 'let &' . a:opt . ' = ''' . val . ''''
+  " exe 'let &' . a:opt . " = '" . escape(val, "'\"") . "'"
+  exe 'let &' . a:opt . ' =  "' . escape(val, '\\"') . '"'
 endfunction
 
 function! VimFindsMeOpts(opt)

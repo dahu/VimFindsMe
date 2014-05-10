@@ -4,7 +4,7 @@
 			VIM REFERENCE MANUAL	by Barry Arthur
 
 
-Help on using vimfindsme                                  *vfm* *vimfindsme*
+Help on using vimfindsme                          *VFM* *vfm* *vimfindsme*
 
 1. Introduction				|vimfindsme-intro|
 2. Commands				|vimfindsme-commands|
@@ -52,7 +52,7 @@ Launch VFMFiles with:
   :VFMFiles
 <
 
-OR the key sequence <leader><tab> . This default can be changed by mapping
+OR the key sequence <leader>ge . This default can be changed by mapping
 <plug>vfm_browse_files with an entry in your |$MYVIMRC| like:
 >
   nmap <left> <plug>vfm_browse_files
@@ -91,7 +91,7 @@ and messy comma separated options in vim, like: |'path'|,
                                                                 *VFMPaths*
 :VFMPaths~
 
-The ++VFMPaths++ command demonstrates the ++VFMOpts++ command using the
+The VFMPaths command demonstrates the |VFMOpts| command using the
 |'path'| option.
 
 ==============================================================================
