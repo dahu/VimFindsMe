@@ -66,7 +66,7 @@ endif
 
 " Private Functions: {{{1
 
-function s:SID()
+function! s:SID()
   return "<SNR>" . matchstr(expand('<sfile>'), '<SNR>\zs\d\+_\zeSID$')
 endfun
 
@@ -76,7 +76,7 @@ function! VimFindsMe(path)
   return VimFindsMeFiles(a:path)
 endfunction
 
-function! VimFindsMeFiles(path)
+function! VimFindsMeFiles(path) "{{{2
   let paths = filter(split(a:path, '\\\@<!,'), 'v:val !~ "^\s*;\s*$"')
   let cwd = getcwd()
 
@@ -118,34 +118,48 @@ function! VimFindsMeFiles(path)
   let find_cmd = "find -L " . join(paths, " ") . find_depth . find_prune
         \. ' 2>/dev/null'
 
-  call vfm#file_list_overlay(vfm#uniq(sort(split(system(find_cmd), "\n"))))
+  call vfm#show_list_overlay(vfm#uniq(sort(split(system(find_cmd), "\n"))))
   call vfm#overlay_controller({'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())'})
 
-endfunction
+endfunction "}}}2
 
 function! s:vfm_dirs_callback()
   exe ':cd ' . vfm#select_line()
-  pwd
+  echo getcwd()
 endfunction
 
 function! VimFindsMeDirs()
-  call vfm#file_list_overlay(vfm#readfile(g:vfm_dirs_file))
+  call vfm#show_list_overlay(vfm#readfile(g:vfm_dirs_file))
   call vfm#overlay_controller({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()'})
 endfunction
 
-function! s:vfm_paths_callback()
-  exe 'set path=' . join(vfm#select_buffer(), ',')
+function! s:vfm_opts_callback(opt)
+  let val = join(map(vfm#select_buffer()
+        \ , 'substitute(v:val, "\\\\\\@<![ ,]", "\\\\&", "g")')
+        \ , ',')
+  exe 'let &' . a:opt . ' = ''' . val . ''''
 endfunction
 
-function! VimFindsMePaths()
-  call vfm#file_list_overlay(map(split(&path, '\\\@<!,'), 'escape(v:val, "\\ ")'))
-  call vfm#overlay_controller({'<enter>' : ':call ' . s:SID() . 'vfm_paths_callback()'})
+function! VimFindsMeOpts(opt)
+  let opt = '&' . substitute(a:opt, '^&', '', '')
+  if ! exists(opt)
+    throw 'Unknown option ' . opt
+  endif
+  call vfm#show_list_overlay(split(eval(opt), '\\\@<!,'))
+  call vfm#overlay_controller({
+        \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")'})
 endfunction
+
+" Commands: {{{1
+command! -nargs=0 -bar VFMFiles  call VimFindsMeFiles(&path)
+command! -nargs=0 -bar VFMDirs   call VimFindsMeDirs()
+command! -nargs=0 -bar VFMPaths  call VimFindsMeOpts('&path')
+command! -nargs=1 -bar VFMOpts   call VimFindsMeOpts(<q-args>)
 
 " Maps: {{{1
-nnoremap <silent> <plug>vfm_browse_files  :call VimFindsMeFiles(&path)<CR>
-nnoremap <silent> <plug>vfm_browse_dirs   :call VimFindsMeDirs()<CR>
-nnoremap <silent> <plug>vfm_browse_paths  :call VimFindsMePaths()<CR>
+nnoremap <silent> <plug>vfm_browse_files  :VFMFiles<CR>
+nnoremap <silent> <plug>vfm_browse_dirs   :VFMDirs<CR>
+nnoremap <silent> <plug>vfm_browse_paths  :VFMPaths<CR>
 
 if !hasmapto('<Plug>vfm_browse_files')
   nmap <unique><silent> <leader>ge <Plug>vfm_browse_files
@@ -158,11 +172,6 @@ endif
 if !hasmapto('<Plug>vfm_browse_paths')
   nmap <unique><silent> <leader>gp <Plug>vfm_browse_paths
 endif
-
-" Commands: {{{1
-command! -nargs=0 -bar VFMFiles  call VimFindsMeFiles(&path)
-command! -nargs=0 -bar VFMDirs   call VimFindsMeDirs()
-command! -nargs=0 -bar VFMPaths  call VimFindsMePaths()
 
 " Autocommands {{{1
 " runtime autoload/vfm.vim

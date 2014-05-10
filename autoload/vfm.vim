@@ -35,7 +35,7 @@ function! vfm#overlay_controller(...)
   endif
 endfunction
 
-function! vfm#file_list_overlay(files)
+function! vfm#show_list_overlay(files)
   let s:altbuf = bufnr('#')
 
   if g:vfm_use_split
