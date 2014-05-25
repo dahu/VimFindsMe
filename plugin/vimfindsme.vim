@@ -150,15 +150,38 @@ function! VimFindsMeOpts(opt)
         \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")'})
 endfunction
 
+function! s:vfm_args_callback()
+  let arg = line('.')
+  exe ':args ' . join(vfm#select_buffer(), ' ')
+  exe 'argument ' . arg
+endfunction
+
+function! VimFindsMeArgs()
+  let auto_act = g:vfm_auto_act_on_single_filter_result
+  let g:vfm_auto_act_on_single_filter_result = 0
+  call vfm#show_list_overlay(argv())
+  let g:vfm_auto_act_on_single_filter_result = auto_act
+  call vfm#overlay_controller(
+        \ {
+        \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()'
+        \ })
+endfunction
+
 " Commands: {{{1
-command! -nargs=0 -bar VFMEdit   call VimFindsMeFiles(&path)
-command! -nargs=0 -bar VFMCD     call VimFindsMeDirs()
-command! -nargs=1 -bar VFMOpts   call VimFindsMeOpts(<q-args>)
+command! -nargs=0 -bar          VFMEdit call VimFindsMeFiles(&path)
+command! -nargs=0 -bar          VFMCD   call VimFindsMeDirs()
+command! -nargs=1 -bar          VFMOpts call VimFindsMeOpts(<q-args>)
+command! -nargs=0 -bar          VFMArgs call VimFindsMeArgs()
+command! -nargs=0 -bar -range=% Args
+      \ exe 'args ' . join(getline(<line1>,<line2>), ' ')
+command! -nargs=0 -bar -range=% Argadd
+      \ exe 'argadd ' . join(getline(<line1>,<line2>), ' ')
 
 " Maps: {{{1
 nnoremap <silent> <plug>vfm_browse_files  :VFMEdit<CR>
 nnoremap <silent> <plug>vfm_browse_dirs   :VFMCD<CR>
 nnoremap <silent> <plug>vfm_browse_paths  :call VimFindsMeOpts('&path')<CR>
+nnoremap <silent> <plug>vfm_browse_args   :VFMArgs<CR>
 
 if !hasmapto('<Plug>vfm_browse_files')
   nmap <unique><silent> <leader>ge <Plug>vfm_browse_files
@@ -170,6 +193,10 @@ endif
 
 if !hasmapto('<Plug>vfm_browse_paths')
   nmap <unique><silent> <leader>gp <Plug>vfm_browse_paths
+endif
+
+if !hasmapto('<Plug>vfm_browse_args')
+  nmap <unique><silent> <leader>ga <Plug>vfm_browse_args
 endif
 
 " Autocommands {{{1

@@ -68,6 +68,20 @@ search by doing:
 <
 or use the builtin map "cv" which does the same thing.
 
+                                                                 *VFMArgs*
+The VFMArgs command displays the current |:args|. Pressing |<enter>|
+in this window sets the args with the contents of the window as well
+as jumping to the file under the cursor. By default this functionality
+is also mapped to |<leader>ga| which can be overridden via
+|<plug>vfm_browse_args|.
+
+                                                                    *Args*
+The :Args command will set |:args| to the contents of the buffer.
+
+                                                                  *Argadd*
+The :Argadd command will call |:argadd| with the contents of the buffer.
+
+
                                                                    *VFMCD*
 :VFMCD~
 

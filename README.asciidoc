@@ -68,6 +68,25 @@ and if not, a search prompt). If your search term is too sparsely
 represented within the browse results, use the `cv` command to filter
 the buffer down to only those lines matching your search.
 
+:VFMArgs
+~~~~~~~~
+
+The ++VFMArgs++ command displays the current ++:args++. Pressing
+++<enter>++ in this window sets the args with the contents of the
+window as well as jumping to the file under the cursor. By default
+this functionality is also mapped to ++<leader>ga++ which can be
+overridden via ++<plug>vfm_browse_args++.
+
+:Args
+^^^^^
+
+The ++:Args++ command will set ++:args++ to the contents of the buffer.
+
+:Argadd
+^^^^^^^
+
+The ++:Argadd++ command will call ++:argadd++ with the contents of the buffer.
+
 :VFMCD
 ~~~~~~
 
