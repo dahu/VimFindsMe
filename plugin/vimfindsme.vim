@@ -167,36 +167,69 @@ function! VimFindsMeArgs()
         \ })
 endfunction
 
+function! VFMArgument(arg)
+  let arg = a:arg
+  if (type(arg) == type(0)) || (arg =~ '^\d\+$')
+    exe 'argument ' . arg
+  elseif type(arg) == type('')
+    let bufname = bufname(arg)
+    if bufname == ''
+      echohl Warning
+      echom "No unique buffer found with given partial."
+      echohl None
+    elseif index(argv(), bufname) == -1
+      echohl Warning
+      echom "Buffer " . bufnr(bufname) . " (" . bufname . ") is not in argument list."
+      echohl None
+    else
+      exe 'argedit ' . bufname
+    endif
+  else
+    throw "Unexpected argument type: " . type(arg)
+  endif
+endfunction
+
+function! VFMArglistComplete(ArgLead, CmdLine, CursorPos)
+  return join(map(argv(), 'substitute(v:val, "^\\./", "", "")'), "\n")
+endfunction
+
 " Commands: {{{1
-command! -nargs=0 -bar          VFMEdit call VimFindsMeFiles(&path)
-command! -nargs=0 -bar          VFMCD   call VimFindsMeDirs()
-command! -nargs=1 -bar          VFMOpts call VimFindsMeOpts(<q-args>)
-command! -nargs=0 -bar          VFMArgs call VimFindsMeArgs()
-command! -nargs=0 -bar -range=% Args
+command! -nargs=0 -bar          VFMEdit     call VimFindsMeFiles(&path)
+command! -nargs=0 -bar          VFMCD       call VimFindsMeDirs()
+command! -nargs=1 -bar          VFMOpts     call VimFindsMeOpts(<q-args>)
+command! -nargs=0 -bar          VFMArglist  call VimFindsMeArgs()
+command! -nargs=0 -bar -range=% VFMArgs
       \ exe 'args ' . join(getline(<line1>,<line2>), ' ')
-command! -nargs=0 -bar -range=% Argadd
+command! -nargs=0 -bar -range=% VFMArgadd
       \ exe 'argadd ' . join(getline(<line1>,<line2>), ' ')
+command! -nargs=1 -bar -complete=custom,VFMArglistComplete
+      \ VFMArgument call VFMArgument(<q-args>)
 
 " Maps: {{{1
 nnoremap <silent> <plug>vfm_browse_files  :VFMEdit<CR>
 nnoremap <silent> <plug>vfm_browse_dirs   :VFMCD<CR>
 nnoremap <silent> <plug>vfm_browse_paths  :call VimFindsMeOpts('&path')<CR>
-nnoremap <silent> <plug>vfm_browse_args   :VFMArgs<CR>
+nnoremap <silent> <plug>vfm_browse_args   :VFMArglist<CR>
+nnoremap <silent> <plug>vfm_argument      :call feedkeys(":VFMArgument \<c-d>")<cr>
 
-if !hasmapto('<Plug>vfm_browse_files')
-  nmap <unique><silent> <leader>ge <Plug>vfm_browse_files
+if !hasmapto('<plug>vfm_browse_files')
+  nmap <unique><silent> <leader>ge <plug>vfm_browse_files
 endif
 
-if !hasmapto('<Plug>vfm_browse_dirs')
-  nmap <unique><silent> <leader>gd <Plug>vfm_browse_dirs
+if !hasmapto('<plug>vfm_browse_dirs')
+  nmap <unique><silent> <leader>gd <plug>vfm_browse_dirs
 endif
 
-if !hasmapto('<Plug>vfm_browse_paths')
-  nmap <unique><silent> <leader>gp <Plug>vfm_browse_paths
+if !hasmapto('<plug>vfm_browse_paths')
+  nmap <unique><silent> <leader>gp <plug>vfm_browse_paths
 endif
 
-if !hasmapto('<Plug>vfm_browse_args')
-  nmap <unique><silent> <leader>ga <Plug>vfm_browse_args
+if !hasmapto('<plug>vfm_browse_args')
+  nmap <unique><silent> <leader>ga <plug>vfm_browse_args
+endif
+
+if !hasmapto('<plug>vfm_argument')
+  nmap <unique><silent> <leader>gg <plug>vfm_argument
 endif
 
 " Autocommands {{{1
