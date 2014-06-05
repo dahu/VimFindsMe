@@ -106,6 +106,7 @@ and messy comma separated options in vim, like: |'path'|,
  3. CONFIGURATION                               *vimfindsme-configuration*
 
 |'vfm_hide_dirs'|	Don't display bare directory names in the browser.
+|'vfm_use_system_find'|	Use the system `find` command.
 |'vfm_ignore'|		Names for `find` to ignore.
 |'vfm_maxdepth'|	`find` argument -maxdepth to limit recurse level.
 |'vfm_skip_home'|	Try not to find from $HOME.
@@ -122,11 +123,28 @@ This option controls whether bare directory entries are shown in the browser
 results. By default, they are not.
 
 ------------------------------------------------------------------------------
+                                                   *'vfm_use_system_find'*
+Values: boolean~
+Default: 0                                                                   ~
+
+Affects VFMEdit only.
+
+This option controls which tool is used to find files. By default, the
+internal Vim function |globpath()| is used. This is more portable across
+different architectures, but might be slower than your system `find` tool. To
+use the system `find` tool instead, enable this option.
+
+Note: When |'vfm_use_system_find'| is disabled (default), the 'wildignore'
+      options applies: Names matching one of the patterns in 'wildignore'
+      will be skipped. When |'vfm_use_system_find'| is enabled, the
+      |'vfm_ignore'| option is used instead.
+
+------------------------------------------------------------------------------
                                                             *'vfm_ignore'*
 Values: list of glob expressions                ~
 Default: ['.hg', '.svn', '.bzr', '.git', 'CVS', '*.sw?']~
 
-Affects VFMEdit only.
+Affects VFMEdit only. Affects system `find` tool only - |'vfm_use_system_find'|
 
 This is a set of globs used to match names to be ignored by the find command.
 
