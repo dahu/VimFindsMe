@@ -101,8 +101,9 @@ function! VimFindsMeFiles(path) "{{{2
     return
   endif
 
-  if (cwd == fnamemodify('$HOME', ':p:h')) && (index(paths, '.') != -1)
-        \ && (g:vfm_maxdepth == -1) && (g:vfm_skip_home != 0)
+  if (cwd == fnamemodify($HOME, ':p:h'))
+        \ && (g:vfm_skip_home == 1)
+        \ || ((index(paths, '.') != -1) && (g:vfm_maxdepth == -1))
     echohl Warning
     echom "VFM skipping $HOME"
     echohl None
