@@ -1,6 +1,6 @@
 " Vim global plugin for browsing files in your &path
 " Maintainer:   Barry Arthur <barry.arthur@gmail.com>
-" Version:      0.4
+" Version:      0.5
 " Description:  "fuzzy" file finder, arglist manager, option editor and more
 " Last Change:  2014-05-08
 " License:      Vim License (see :help license)
@@ -28,7 +28,7 @@ if exists("g:loaded_vimfindsme")
 endif
 
 let g:loaded_vimfindsme = 1
-let g:vfm_version = '0.4'
+let g:vfm_version = '0.5'
 
 " Options: {{{1
 if !exists('g:vfm_auto_act_on_single_filter_result')
@@ -124,7 +124,7 @@ function! VimFindsMeFiles(path) "{{{2
   if g:vfm_use_system_find
     call vfm#show_list_overlay(vfm#uniq(sort(split(system(find_cmd), "\n"))))
   else
-    call vfm#show_list_overlay(vfm#uniq(sort(globpath(join(paths, ','), '**/*', 0, 1))))
+    call vfm#show_list_overlay(vfm#uniq(sort(vfm#globpath(join(paths, ','), '**/*', 0, 1))))
   endif
   call vfm#overlay_controller({'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())'})
 

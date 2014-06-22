@@ -1,3 +1,11 @@
+function! vfm#globpath(path, pattern, nosuf, aslist)
+  if v:version == 704 && has('patch279')
+    return globpath(a:path, a:pattern, a:nosuf, a:aslist)
+  else
+    return split(globpath(a:path, a:pattern, a:nosuf), "\n")
+  endif
+endfunction
+
 function! vfm#uniq(list)
   if exists('*uniq')
     return uniq(a:list)
