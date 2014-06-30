@@ -125,7 +125,9 @@ function! VimFindsMeFiles(path) "{{{2
   if g:vfm_use_system_find
     call vfm#show_list_overlay(vfm#uniq(sort(split(system(find_cmd), "\n"))))
   else
-    call vfm#show_list_overlay(vfm#uniq(sort(vfm#globpath(join(paths, ','), '**/*', 0, 1))))
+    let dotted = filter(vfm#globpath(join(paths, ','), '**/.*', 0, 1), 'v:val !~ "\\.\\.\\?$"')
+    let files  = vfm#uniq(sort(dotted + vfm#globpath(join(paths, ','), '**/*', 0, 1)))
+    call vfm#show_list_overlay(files)
   endif
   call vfm#overlay_controller({'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())'})
 
