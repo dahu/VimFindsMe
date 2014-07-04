@@ -133,6 +133,12 @@ function! VimFindsMeFiles(path) "{{{2
 
 endfunction "}}}2
 
+function! VimFindsMeCache()
+  if exists('g:vfm_bufnr')
+    exe 'buffer ' . g:vfm_bufnr
+  endif
+endfunction
+
 function! s:vfm_dirs_callback()
   exe ':cd ' . vfm#select_line()
   echo getcwd()
@@ -205,6 +211,7 @@ endfunction
 
 " Commands: {{{1
 command! -nargs=0 -bar          VFMEdit     call VimFindsMeFiles(&path)
+command! -nargs=0 -bar          VFMCache    call VimFindsMeCache()
 command! -nargs=0 -bar          VFMCD       call VimFindsMeDirs()
 command! -nargs=1 -bar          VFMOpts     call VimFindsMeOpts(<q-args>)
 command! -nargs=0 -bar          VFMArglist  call VimFindsMeArgs()
@@ -217,6 +224,7 @@ command! -nargs=1 -bar -complete=custom,VFMArglistComplete
 
 " Maps: {{{1
 nnoremap <silent> <plug>vfm_browse_files  :VFMEdit<CR>
+nnoremap <silent> <plug>vfm_browse_cache  :VFMCache<CR>
 nnoremap <silent> <plug>vfm_browse_dirs   :VFMCD<CR>
 nnoremap <silent> <plug>vfm_browse_paths  :call VimFindsMeOpts('&path')<CR>
 nnoremap <silent> <plug>vfm_browse_args   :VFMArglist<CR>
@@ -224,6 +232,10 @@ nnoremap <silent> <plug>vfm_argument      :call feedkeys(":VFMArgument \<c-d>")<
 
 if !hasmapto('<plug>vfm_browse_files')
   nmap <unique><silent> <leader>ge <plug>vfm_browse_files
+endif
+
+if !hasmapto('<plug>vfm_browse_cache')
+  nmap <unique><silent> <leader><leader>ge <plug>vfm_browse_cache
 endif
 
 if !hasmapto('<plug>vfm_browse_dirs')

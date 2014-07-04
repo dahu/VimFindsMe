@@ -37,7 +37,16 @@ function! vfm#overlay_controller(...)
   augroup VFM_Overlay
     au!
     au bufenter <buffer> call vfm#refresh_overlay_content()
+    au bufenter <buffer> nnoremap <buffer> q :call vfm#close_overlay()<cr>
+    au bufenter <buffer> nnoremap <buffer> cv :v//d<cr>
+    if a:0
+      for [key, act] in items(a:1)
+        exe 'au bufenter <buffer> nnoremap <buffer> ' . key . ' ' . act . '<cr>'
+      endfor
+    endif
   augroup END
+  " TODO: Clean this up - done this way as a mere bandaid to get it out the
+  " door
   nnoremap <buffer> q :call vfm#close_overlay()<cr>
   nnoremap <buffer> cv :v//d<cr>
   if a:0
@@ -54,7 +63,7 @@ function! vfm#show_list_overlay(files)
     hide noautocmd split
   endif
   hide noautocmd enew
-  let b:vfm_content = a:files
+  let g:vfm_content = a:files
   setlocal buftype=nofile
   setlocal bufhidden=hide
   setlocal noswapfile
@@ -79,7 +88,7 @@ endfunction
 
 function! vfm#refresh_overlay_content()
   % delete
-  call append(0, b:vfm_content)
+  call append(0, g:vfm_content)
   $
   delete _
   redraw
