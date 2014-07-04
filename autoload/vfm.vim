@@ -34,6 +34,10 @@ function! vfm#store_directory()
 endfunction
 
 function! vfm#overlay_controller(...)
+  augroup VFM_Overlay
+    au!
+    au bufenter <buffer> call vfm#refresh_overlay_content()
+  augroup END
   nnoremap <buffer> q :call vfm#close_overlay()<cr>
   nnoremap <buffer> cv :v//d<cr>
   if a:0
@@ -50,6 +54,7 @@ function! vfm#show_list_overlay(files)
     hide noautocmd split
   endif
   hide noautocmd enew
+  let b:vfm_content = a:files
   setlocal buftype=nofile
   setlocal bufhidden=hide
   setlocal noswapfile
@@ -57,11 +62,9 @@ function! vfm#show_list_overlay(files)
   set incsearch
   let old_hls = &hlsearch
   set hlsearch
-  call append(0, a:files)
-  $
-  delete _
-  redraw
-  1
+
+  call vfm#refresh_overlay_content()
+
   if exists(':Filter')
     Filter
   else
@@ -74,14 +77,23 @@ function! vfm#show_list_overlay(files)
   endif
 endfunction
 
+function! vfm#refresh_overlay_content()
+  % delete
+  call append(0, b:vfm_content)
+  $
+  delete _
+  redraw
+  1
+endfunction
+
 function! vfm#close_overlay()
+  let g:vfm_bufnr = bufnr('')
   if g:vfm_use_split
-    let scratch_buf = bufnr('')
     wincmd q
-    exe 'bwipe ' . scratch_buf
+    exe 'bdelete! ' . g:vfm_bufnr
   else
     buffer #
-    bwipe #
+    bdelete! #
     if buflisted(s:altbuf)
       exe 'buffer ' . s:altbuf
       silent! buffer #
