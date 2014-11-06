@@ -192,7 +192,7 @@ function! VFMArgument(arg)
       echom "Buffer " . bufnr(bufname) . " (" . bufname . ") is not in argument list."
       echohl None
     else
-      exe 'argedit ' . bufname
+      exe 'argedit ' . fnameescape(bufname)
     endif
   else
     throw "Unexpected argument type: " . type(arg)
