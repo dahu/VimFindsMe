@@ -86,6 +86,7 @@ The :Argadd command will call |:argadd| with the contents of the buffer.
 
 The VFMAB command displays the current buffer list using |vimple#ls|. Pressing
 |<enter>| in this window sets the args in the same manner as with |VFMArgs|.
+If |vimple| is not installed, this command is not available.
 
                                                                    *VFMCD*
 :VFMCD~
