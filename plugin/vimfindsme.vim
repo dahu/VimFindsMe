@@ -177,19 +177,21 @@ function! VimFindsMeArgs()
         \ })
 endfunction
 
-if exists('*vimple#ls#new')
-  function! VFMArgsFromBufferList()
-    let auto_act = g:vfm_auto_act_on_single_filter_result
-    let g:vfm_auto_act_on_single_filter_result = 0
-    let buffer_names = map(vimple#ls#new().to_l('listed'), 'v:val.name')
-    call vfm#show_list_overlay(buffer_names)
-    let g:vfm_auto_act_on_single_filter_result = auto_act
-    call vfm#overlay_controller(
-          \ {
-          \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()'
-          \ })
-  endfunction
-endif
+function! VFMArgsFromBufferList()
+  if !exists('*vimple#ls#new')
+    echom 'VFMArgsFromBufferList requires vimple to be installed!'
+    return
+  endif
+  let auto_act = g:vfm_auto_act_on_single_filter_result
+  let g:vfm_auto_act_on_single_filter_result = 0
+  let buffer_names = map(vimple#ls#new().to_l('listed'), 'v:val.name')
+  call vfm#show_list_overlay(buffer_names)
+  let g:vfm_auto_act_on_single_filter_result = auto_act
+  call vfm#overlay_controller(
+        \ {
+        \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()'
+        \ })
+endfunction
 
 function! VFMArgument(arg)
   let arg = a:arg
@@ -218,12 +220,10 @@ function! VFMArglistComplete(ArgLead, CmdLine, CursorPos)
 endfunction
 
 " Commands: {{{1
-if exists('*vimple#ls#new')
-  command! -nargs=0 -bar          VFMAB       call VFMArgsFromBufferList()
-endif
 command! -nargs=0 -bar          VFMEdit     call VimFindsMeFiles(&path)
 command! -nargs=0 -bar          VFMCD       call VimFindsMeDirs()
 command! -nargs=1 -bar          VFMOpts     call VimFindsMeOpts(<q-args>)
+command! -nargs=0 -bar          VFMAB       call VFMArgsFromBufferList()
 command! -nargs=0 -bar          VFMArglist  call VimFindsMeArgs()
 command! -nargs=0 -bar -range=% VFMArgs
       \ exe 'args ' . join(getline(<line1>,<line2>), ' ')
@@ -238,9 +238,7 @@ nnoremap <silent> <plug>vfm_browse_dirs   :VFMCD<CR>
 nnoremap <silent> <plug>vfm_browse_paths  :call VimFindsMeOpts('&path')<CR>
 nnoremap <silent> <plug>vfm_browse_args   :VFMArglist<CR>
 nnoremap <silent> <plug>vfm_argument      :call feedkeys(":VFMArgument \<c-d>")<cr>
-if exists('*vimple#ls#new')
-  nnoremap <silent> <plug>vfm_arg_buffers   :VFMAB<CR>
-endif
+nnoremap <silent> <plug>vfm_arg_buffers   :VFMAB<CR>
 
 if !hasmapto('<plug>vfm_browse_files')
   nmap <unique><silent> <leader>ge <plug>vfm_browse_files
