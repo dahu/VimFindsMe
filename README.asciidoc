@@ -23,7 +23,7 @@ http://of-vim-and-vigor.blogspot.com/[beverages].
 * [optional] The system ++find++ command
 
 * [optional] https://github.com/dahu/Vimple[Vimple] (for the
-  https://github.com/dahu/Vimple[Vimple] Filter)
+  https://github.com/dahu/Vimple[Vimple] Filter and :VFMAB)
 
 ++VFMEdit++ relies on your +path+ option. Setting this to a Good
 Value is crucial for getting the best out of VFM. Begin with this
