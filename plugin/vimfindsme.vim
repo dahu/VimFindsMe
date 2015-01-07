@@ -47,6 +47,10 @@ if !exists('g:vfm_skip_home')
   let g:vfm_skip_home = 1
 endif
 
+if !exists('g:vfm_skip_paths')
+  let g:vfm_skip_paths = []
+endif
+
 if !exists('g:vfm_use_split')
   let g:vfm_use_split = 0
 endif
@@ -86,6 +90,7 @@ endfunction
 function VFMWithFiles(path, overlay_maps)
   let paths = filter(split(a:path, '\\\@<!,'), 'v:val !~ "^\s*;\s*$"')
   let cwd = getcwd()
+  let home = fnamemodify($HOME, ':p:h')
 
   if index(paths, '.') != -1
     call add(paths, fnamemodify(expand('%'), ":p:h"))
@@ -95,8 +100,20 @@ function VFMWithFiles(path, overlay_maps)
     call add(paths, cwd)
   endif
 
-  call map(vfm#uniq(sort(filter(paths, 'index(["", ".", "**"], v:val) == -1')))
-        \, 'substitute(v:val, "^" . cwd, ".", "")')
+  call filter(paths, 'index(["", ".", "**"], v:val) == -1')
+
+  if (g:vfm_skip_home && (g:vfm_maxdepth == -1) && g:vfm_use_system_find)
+        \ || (! g:vfm_use_system_find && g:vfm_skip_home)
+    call filter(paths, 'index(["' . escape(home, '"') . '"], v:val) == -1')
+  endif
+
+  if !empty(g:vfm_skip_paths) && (g:vfm_maxdepth == -1) && g:vfm_use_system_find
+        \ || ! (g:vfm_use_system_find || empty(g:vfm_skip_paths))
+    call filter(paths, 'index(g:vfm_skip_paths, v:val) == -1')
+  endif
+
+  " shorten current directory paths to .
+  call map(paths, 'substitute(v:val, "^" . cwd, ".", "")')
 
   if empty(paths)
     echohl Warning
@@ -105,14 +122,7 @@ function VFMWithFiles(path, overlay_maps)
     return
   endif
 
-  if (cwd == fnamemodify($HOME, ':p:h'))
-        \ && (g:vfm_skip_home == 1)
-        \ || ((index(paths, '.') != -1) && (g:vfm_maxdepth == -1))
-    echohl Warning
-    echom "VFM skipping $HOME"
-    echohl None
-    return
-  endif
+  call vfm#uniq(sort(paths))
 
   call map(paths, 'fnameescape(v:val)')
 

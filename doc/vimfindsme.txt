@@ -119,7 +119,8 @@ and messy comma separated options in vim, like: |'path'|,
 |'vfm_use_system_find'|	Use the system `find` command.
 |'vfm_ignore'|		Names for `find` to ignore.
 |'vfm_maxdepth'|	`find` argument -maxdepth to limit recurse level.
-|'vfm_skip_home'|	Try not to find from $HOME.
+|'vfm_skip_home'|	Do not find from $HOME.
+|'vfm_skip_paths'|	Do not find from these paths.
 |'vfm_use_split'|	Use a split for the browser.
 
 ------------------------------------------------------------------------------
@@ -176,7 +177,21 @@ Default: 1~
 Affects VFMEdit only.
 
 This option attempts to prevent VFM from searching within your $HOME
-directory. It only takes effect when g:vfm_maxdepth == -1 (i.e. disabled).
+directory. If using g:vfm_use_system_find, then this option only takes effect
+when g:vfm_maxdepth == -1 (i.e. disabled). When using the builtin glob() find,
+$HOME is always skipped if this option is enabled.
+
+------------------------------------------------------------------------------
+                                                         *'vfm_skip_paths'*
+Values: list of paths~
+Default: []~
+
+Affects VFMEdit only.
+
+This option attempts to prevent VFM from searching within the specified set of
+directories. If using g:vfm_use_system_find, then this option only takes
+effect when g:vfm_maxdepth == -1 (i.e. disabled). When using the builtin
+glob() find, the paths in this list are always skipped.
 
 ------------------------------------------------------------------------------
                                                          *'vfm_use_split'*
