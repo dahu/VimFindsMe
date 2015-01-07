@@ -242,7 +242,8 @@ function! VFMArgument(arg)
 endfunction
 
 function! VFMArglistComplete(ArgLead, CmdLine, CursorPos)
-  return join(map(argv(), 'substitute(v:val, "^\\./", "", "")'), "\n")
+  return filter(map(argv(), 'substitute(v:val, "^\\./", "", "")'),
+        \ 'v:val =~# "' . a:ArgLead . '"')
 endfunction
 
 " Commands: {{{1
@@ -256,7 +257,7 @@ command! -nargs=0 -bar -range=% VFMArgs
       \ exe 'args ' . join(getline(<line1>,<line2>), ' ')
 command! -nargs=0 -bar -range=% VFMArgadd
       \ exe 'argadd ' . join(getline(<line1>,<line2>), ' ')
-command! -nargs=1 -bar -complete=custom,VFMArglistComplete
+command! -nargs=1 -bar -complete=customlist,VFMArglistComplete
       \ VFMArgument call VFMArgument(<q-args>)
 
 " Maps: {{{1
