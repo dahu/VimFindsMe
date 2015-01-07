@@ -193,9 +193,9 @@ function! VimFindsMeArgs()
         \ })
 endfunction
 
-function! VFMArgsFromBufferList()
+function! VimFindsMeBufs()
   if !exists('*vimple#ls#new')
-    echom 'VFMArgsFromBufferList requires vimple to be installed!'
+    echom 'VimFindsMeBufs requires vimple to be installed!'
     return
   endif
   let auto_act = g:vfm_auto_act_on_single_filter_result
@@ -239,7 +239,7 @@ endfunction
 command! -nargs=0 -bar          VFMEdit     call VimFindsMeFiles(&path)
 command! -nargs=0 -bar          VFMCD       call VimFindsMeDirs()
 command! -nargs=1 -bar          VFMOpts     call VimFindsMeOpts(<q-args>)
-command! -nargs=0 -bar          VFMAB       call VFMArgsFromBufferList()
+command! -nargs=0 -bar          VFMBufs     call VimFindsMeBufs()
 command! -nargs=0 -bar          VFMArglist  call VimFindsMeArgs()
 command! -nargs=0 -bar          VFMBadd     call VFMWithFiles(&path, {'<enter>' : ':call ' . s:SID() . 'vfm_badd_callback()'})
 command! -nargs=0 -bar -range=% VFMArgs
@@ -254,8 +254,8 @@ nnoremap <silent> <plug>vfm_browse_files  :VFMEdit<CR>
 nnoremap <silent> <plug>vfm_browse_dirs   :VFMCD<CR>
 nnoremap <silent> <plug>vfm_browse_paths  :call VimFindsMeOpts('&path')<CR>
 nnoremap <silent> <plug>vfm_browse_args   :VFMArglist<CR>
+nnoremap <silent> <plug>vfm_browse_bufs   :VFMBufs<CR>
 nnoremap <silent> <plug>vfm_argument      :call feedkeys(":VFMArgument \<c-d>")<cr>
-nnoremap <silent> <plug>vfm_arg_buffers   :VFMAB<CR>
 
 if !hasmapto('<plug>vfm_browse_files')
   nmap <unique><silent> <leader>ge <plug>vfm_browse_files
@@ -273,12 +273,12 @@ if !hasmapto('<plug>vfm_browse_args')
   nmap <unique><silent> <leader>ga <plug>vfm_browse_args
 endif
 
-if !hasmapto('<plug>vfm_argument')
-  nmap <unique><silent> <leader>gg <plug>vfm_argument
+if !hasmapto('<plug>vfm_browse_bufs')
+  nmap <unique><silent> <leader>gb <plug>vfm_browse_bufs
 endif
 
-if !hasmapto('<plug>vfm_arg_buffers')
-  nmap <unique><silent> <leader>gc <plug>vfm_arg_buffers
+if !hasmapto('<plug>vfm_argument')
+  nmap <unique><silent> <leader>gg <plug>vfm_argument
 endif
 
 " Autocommands {{{1
