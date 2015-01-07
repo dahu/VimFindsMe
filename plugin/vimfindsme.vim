@@ -80,6 +80,10 @@ function! VimFindsMe(path)
 endfunction
 
 function! VimFindsMeFiles(path) "{{{2
+  return VFMWithFiles(a:path,  {'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())'})
+endfunction
+
+function VFMWithFiles(path, overlay_maps)
   let paths = filter(split(a:path, '\\\@<!,'), 'v:val !~ "^\s*;\s*$"')
   let cwd = getcwd()
 
@@ -129,7 +133,7 @@ function! VimFindsMeFiles(path) "{{{2
     let files  = vfm#uniq(sort(dotted + vfm#globpath(join(paths, ','), '**/*', 0, 1)))
     call vfm#show_list_overlay(files)
   endif
-  call vfm#overlay_controller({'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())'})
+  call vfm#overlay_controller(a:overlay_maps)
 
 endfunction "}}}2
 
@@ -158,6 +162,18 @@ function! VimFindsMeOpts(opt)
   call vfm#show_list_overlay(split(eval(opt), '\\\@<!,'))
   call vfm#overlay_controller({
         \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")'})
+endfunction
+
+function s:vfm_badd_callback()
+  let buf_choice = getline('.')
+  for buffer_name in vfm#select_buffer()
+    if buffer_name != ''
+      exe 'badd ' . buffer_name
+    endif
+  endfor
+  if buf_choice != ''
+    exe 'buffer ' . buf_choice
+  endif
 endfunction
 
 function! s:vfm_args_callback()
@@ -208,6 +224,7 @@ command! -nargs=0 -bar          VFMEdit     call VimFindsMeFiles(&path)
 command! -nargs=0 -bar          VFMCD       call VimFindsMeDirs()
 command! -nargs=1 -bar          VFMOpts     call VimFindsMeOpts(<q-args>)
 command! -nargs=0 -bar          VFMArglist  call VimFindsMeArgs()
+command! -nargs=0 -bar          VFMBadd     call VFMWithFiles(&path, {'<enter>' : ':call ' . s:SID() . 'vfm_badd_callback()'})
 command! -nargs=0 -bar -range=% VFMArgs
       \ exe 'args ' . join(getline(<line1>,<line2>), ' ')
 command! -nargs=0 -bar -range=% VFMArgadd
