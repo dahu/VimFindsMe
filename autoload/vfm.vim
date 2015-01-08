@@ -43,8 +43,15 @@ function! vfm#overlay_controller(...)
   endif
 endfunction
 
-function! vfm#show_list_overlay(files)
+function! vfm#show_list_overlay(files, ...)
   let s:altbuf = bufnr('#')
+
+  let options = {'filter' : 1}
+  if a:0
+    if type(a:1) == type({})
+      call extend(options, a:1)
+    endif
+  endif
 
   if g:vfm_use_split
     hide noautocmd split
@@ -62,10 +69,12 @@ function! vfm#show_list_overlay(files)
   delete _
   redraw
   1
-  if exists(':Filter')
-    Filter
-  else
-    call feedkeys('/')
+  if options.filter
+    if exists(':Filter')
+      Filter
+    else
+      call feedkeys('/')
+    endif
   endif
   if g:vfm_auto_act_on_single_filter_result
     if line('$') == 1
