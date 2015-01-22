@@ -38,7 +38,7 @@ function! vfm#overlay_controller(...)
   nnoremap <buffer> cv :v//d<cr>
   if a:0
     for [key, act] in items(a:1)
-      exe 'nnoremap <buffer> ' . key . ' ' . act . '<cr>'
+      exe 'nnoremap <buffer> ' . key . ' ' . act
     endfor
   endif
 endfunction
@@ -57,6 +57,7 @@ function! vfm#show_list_overlay(files, ...)
     hide noautocmd split
   endif
   hide noautocmd enew
+  let b:vfm_use_split = g:vfm_use_split
   setlocal buftype=nofile
   setlocal bufhidden=hide
   setlocal noswapfile
@@ -84,7 +85,7 @@ function! vfm#show_list_overlay(files, ...)
 endfunction
 
 function! vfm#close_overlay()
-  if g:vfm_use_split
+  if b:vfm_use_split
     let scratch_buf = bufnr('')
     wincmd q
     exe 'bwipe ' . scratch_buf

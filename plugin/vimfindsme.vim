@@ -84,7 +84,7 @@ function! VimFindsMe(path)
 endfunction
 
 function! VimFindsMeFiles(path) "{{{2
-  return VFMWithFiles(a:path,  {'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())'})
+  return VFMWithFiles(a:path,  {'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())<cr>'})
 endfunction
 
 function VFMWithFiles(path, overlay_maps)
@@ -154,7 +154,7 @@ endfunction
 
 function! VimFindsMeDirs()
   call vfm#show_list_overlay(vfm#readfile(g:vfm_dirs_file))
-  call vfm#overlay_controller({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()'})
+  call vfm#overlay_controller({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'})
 endfunction
 
 function! s:vfm_opts_callback(opt)
@@ -171,7 +171,7 @@ function! VimFindsMeOpts(opt)
   endif
   call vfm#show_list_overlay(split(eval(opt), '\\\@<!,'))
   call vfm#overlay_controller({
-        \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")'})
+        \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")<cr>'})
 endfunction
 
 function s:vfm_badd_callback()
@@ -199,7 +199,7 @@ function! VimFindsMeArgs()
   let g:vfm_auto_act_on_single_filter_result = auto_act
   call vfm#overlay_controller(
         \ {
-        \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()'
+        \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'
         \ })
 endfunction
 
@@ -215,7 +215,7 @@ function! VimFindsMeBufs()
   let g:vfm_auto_act_on_single_filter_result = auto_act
   call vfm#overlay_controller(
         \ {
-        \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()'
+        \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'
         \ })
 endfunction
 
@@ -252,7 +252,7 @@ command! -nargs=0 -bar          VFMCD       call VimFindsMeDirs()
 command! -nargs=1 -bar          VFMOpts     call VimFindsMeOpts(<q-args>)
 command! -nargs=0 -bar          VFMBufs     call VimFindsMeBufs()
 command! -nargs=0 -bar          VFMArglist  call VimFindsMeArgs()
-command! -nargs=0 -bar          VFMBadd     call VFMWithFiles(&path, {'<enter>' : ':call ' . s:SID() . 'vfm_badd_callback()'})
+command! -nargs=0 -bar          VFMBadd     call VFMWithFiles(&path, {'<enter>' : ':call ' . s:SID() . 'vfm_badd_callback()<cr>'})
 command! -nargs=0 -bar -range=% VFMArgs
       \ exe 'args ' . join(getline(<line1>,<line2>), ' ')
 command! -nargs=0 -bar -range=% VFMArgadd
