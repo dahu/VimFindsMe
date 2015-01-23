@@ -87,6 +87,20 @@ function! s:actions(actions)
   return extend(copy(s:common_actions), a:actions)
 endfunction
 
+" s:vfm_overlay(list, actions, [ {options} ])
+function! s:vfm_overlay(list, actions, ...)
+  let options = {'use_split' : g:vfm_use_split}
+  if a:0
+    call extend(options, a:1)
+  endif
+  call overlay#show(a:list, s:actions(a:actions), options)
+endfunction
+
+function! s:vfm_enter_action(callback)
+  return {'<enter>' : ':call ' . s:SID() . a:callback . '<cr>'}
+endfunction
+
+
 " Public Interface: {{{1
 
 function! VimFindsMe(path)
@@ -94,8 +108,12 @@ function! VimFindsMe(path)
   return VimFindsMeFiles(a:path)
 endfunction
 
+function! s:vfm_files_callback()
+  exe 'edit ' . fnameescape(overlay#select_line())
+endfunction
+
 function! VimFindsMeFiles(path) "{{{2
-  return VFMWithFiles(a:path,  s:actions({'<enter>' : ':exe "edit " . fnameescape(overlay#select_line())<cr>'}))
+  return VFMWithFiles(a:path, s:vfm_enter_action('vfm_files_callback()'))
 endfunction
 
 function! VFMWithFiles(path, overlay_maps)
@@ -149,11 +167,11 @@ function! VFMWithFiles(path, overlay_maps)
         \. ' 2>/dev/null'
 
   if g:vfm_use_system_find
-    call overlay#show(vfm#uniq(sort(split(system(find_cmd), "\n"))), a:overlay_maps, overlay_options)
+    call s:vfm_overlay(vfm#uniq(sort(split(system(find_cmd), "\n"))), a:overlay_maps, overlay_options)
   else
     let dotted = filter(vfm#globpath(join(paths, ','), '**/.*', 0, 1), 'v:val !~ "\\.\\.\\?$"')
     let files  = vfm#uniq(sort(dotted + vfm#globpath(join(paths, ','), '**/*', 0, 1)))
-    call overlay#show(files, a:overlay_maps, overlay_options)
+    call s:vfm_overlay(files, a:overlay_maps, overlay_options)
   endif
 
 endfunction "}}}2
@@ -164,8 +182,7 @@ function! s:vfm_dirs_callback()
 endfunction
 
 function! VimFindsMeDirs()
-  let actions = s:actions({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'})
-  call overlay#show(vfm#readfile(g:vfm_dirs_file), actions, {'use_split': g:vfm_use_split})
+  call s:vfm_overlay(vfm#readfile(g:vfm_dirs_file), s:vfm_enter_action( 'vfm_dirs_callback()'))
 endfunction
 
 function! s:vfm_opts_callback(opt)
@@ -180,10 +197,7 @@ function! VimFindsMeOpts(opt)
   if ! exists(opt)
     throw 'Unknown option ' . opt
   endif
-  let actions = s:actions({
-        \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")<cr>'
-        \})
-  call overlay#show(split(eval(opt), '\\\@<!,'), actions, {'use_split': g:vfm_use_split})
+  call s:vfm_overlay(split(eval(opt), '\\\@<!,'), s:vfm_enter_action('vfm_opts_callback("' . opt[1:] . '")'))
 endfunction
 
 function! s:vfm_badd_callback()
@@ -207,8 +221,7 @@ endfunction
 function! VimFindsMeArgs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
-  let actions = s:actions({'<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'})
-  call overlay#show(argv(), actions, {'filter' : 0, 'use_split': g:vfm_use_split})
+  call s:vfm_overlay(argv(), s:vfm_enter_action('vfm_args_callback()'), {'filter' : 0})
   let g:vfm_auto_act_on_single_filter_result = auto_act
 endfunction
 
@@ -220,8 +233,7 @@ function! VimFindsMeBufs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
   let buffer_names = map(vimple#ls#new().to_l('listed'), 'v:val.name')
-  let actions = s:actions({ '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>' })
-  call overlay#show(buffer_names, actions, {'filter' : 0, 'use_split': g:vfm_use_split})
+  call s:vfm_overlay(buffer_names, s:vfm_enter_action('vfm_args_callback()>'), {'filter' : 0})
   let g:vfm_auto_act_on_single_filter_result = auto_act
 endfunction
 
@@ -258,7 +270,7 @@ command! -nargs=0 -bar          VFMCD       call VimFindsMeDirs()
 command! -nargs=1 -bar          VFMOpts     call VimFindsMeOpts(<q-args>)
 command! -nargs=0 -bar          VFMBufs     call VimFindsMeBufs()
 command! -nargs=0 -bar          VFMArglist  call VimFindsMeArgs()
-command! -nargs=0 -bar          VFMBadd     call VFMWithFiles(&path, s:action({'<enter>' : ':call ' . s:SID() . 'vfm_badd_callback()<cr>'}))
+command! -nargs=0 -bar          VFMBadd     call VFMWithFiles(&path, s:vfm_enter_action('vfm_badd_callback()'))
 command! -nargs=0 -bar -range=% VFMArgs
       \ exe 'args ' . join(getline(<line1>,<line2>), ' ')
 command! -nargs=0 -bar -range=% VFMArgadd
