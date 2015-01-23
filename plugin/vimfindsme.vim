@@ -89,7 +89,10 @@ endfunction
 
 " s:vfm_overlay(list, actions, [ {options} ])
 function! s:vfm_overlay(list, actions, ...)
-  let options = {'use_split' : g:vfm_use_split}
+  let options = {
+        \ 'use_split' : g:vfm_use_split
+        \,'auto_act'  : g:vfm_auto_act_on_single_filter_result
+        \}
   if a:0
     call extend(options, a:1)
   endif
