@@ -91,6 +91,7 @@ function! VFMWithFiles(path, overlay_maps)
   let paths = filter(split(a:path, '\\\@<!,'), 'v:val !~ "^\s*;\s*$"')
   let cwd = getcwd()
   let home = fnamemodify($HOME, ':p:h')
+  let overlay_options = {'use_split': g:vfm_use_split}
 
   if index(paths, '.') != -1
     call add(paths, fnamemodify(expand('%'), ":p:h"))
@@ -137,11 +138,11 @@ function! VFMWithFiles(path, overlay_maps)
         \. ' 2>/dev/null'
 
   if g:vfm_use_system_find
-    call overlay#show_list(vfm#uniq(sort(split(system(find_cmd), "\n"))))
+    call overlay#show_list(vfm#uniq(sort(split(system(find_cmd), "\n"))), overlay_options)
   else
     let dotted = filter(vfm#globpath(join(paths, ','), '**/.*', 0, 1), 'v:val !~ "\\.\\.\\?$"')
     let files  = vfm#uniq(sort(dotted + vfm#globpath(join(paths, ','), '**/*', 0, 1)))
-    call overlay#show_list(files)
+    call overlay#show_list(files, overlay_options)
   endif
   call overlay#controller(a:overlay_maps)
 
@@ -153,7 +154,7 @@ function! s:vfm_dirs_callback()
 endfunction
 
 function! VimFindsMeDirs()
-  call overlay#show_list(vfm#readfile(g:vfm_dirs_file))
+  call overlay#show_list(vfm#readfile(g:vfm_dirs_file), {'use_split': g:vfm_use_split})
   call overlay#controller({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'})
 endfunction
 
@@ -169,7 +170,7 @@ function! VimFindsMeOpts(opt)
   if ! exists(opt)
     throw 'Unknown option ' . opt
   endif
-  call overlay#show_list(split(eval(opt), '\\\@<!,'))
+  call overlay#show_list(split(eval(opt), '\\\@<!,'), {'use_split': g:vfm_use_split})
   call overlay#controller({
         \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")<cr>'})
 endfunction
@@ -195,7 +196,7 @@ endfunction
 function! VimFindsMeArgs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
-  call overlay#show_list(argv(), {'filter' : 0})
+  call overlay#show_list(argv(), {'filter' : 0, 'use_split': g:vfm_use_split})
   let g:vfm_auto_act_on_single_filter_result = auto_act
   call overlay#controller(
         \ {
@@ -211,7 +212,7 @@ function! VimFindsMeBufs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
   let buffer_names = map(vimple#ls#new().to_l('listed'), 'v:val.name')
-  call overlay#show_list(buffer_names, {'filter' : 0})
+  call overlay#show_list(buffer_names, {'filter' : 0, 'use_split': g:vfm_use_split})
   let g:vfm_auto_act_on_single_filter_result = auto_act
   call overlay#controller(
         \ {
