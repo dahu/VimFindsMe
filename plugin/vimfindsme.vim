@@ -24,7 +24,7 @@ if exists("g:loaded_vimfindsme")
   echohl Warning
   echom "VimFindsMe depends on Vim 7.3 or later"
   echohl None
-  finish
+  "finish
 endif
 
 let g:loaded_vimfindsme = 1
@@ -87,7 +87,7 @@ function! VimFindsMeFiles(path) "{{{2
   return VFMWithFiles(a:path,  {'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())<cr>'})
 endfunction
 
-function VFMWithFiles(path, overlay_maps)
+function! VFMWithFiles(path, overlay_maps)
   let paths = filter(split(a:path, '\\\@<!,'), 'v:val !~ "^\s*;\s*$"')
   let cwd = getcwd()
   let home = fnamemodify($HOME, ':p:h')
@@ -137,13 +137,13 @@ function VFMWithFiles(path, overlay_maps)
         \. ' 2>/dev/null'
 
   if g:vfm_use_system_find
-    call vfm#show_list_overlay(vfm#uniq(sort(split(system(find_cmd), "\n"))))
+    call overlay#show_list_overlay(vfm#uniq(sort(split(system(find_cmd), "\n"))))
   else
     let dotted = filter(vfm#globpath(join(paths, ','), '**/.*', 0, 1), 'v:val !~ "\\.\\.\\?$"')
     let files  = vfm#uniq(sort(dotted + vfm#globpath(join(paths, ','), '**/*', 0, 1)))
-    call vfm#show_list_overlay(files)
+    call overlay#show_list_overlay(files)
   endif
-  call vfm#overlay_controller(a:overlay_maps)
+  call overlay#overlay_controller(a:overlay_maps)
 
 endfunction "}}}2
 
@@ -153,8 +153,8 @@ function! s:vfm_dirs_callback()
 endfunction
 
 function! VimFindsMeDirs()
-  call vfm#show_list_overlay(vfm#readfile(g:vfm_dirs_file))
-  call vfm#overlay_controller({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'})
+  call overlay#show_list_overlay(vfm#readfile(g:vfm_dirs_file))
+  call overlay#overlay_controller({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'})
 endfunction
 
 function! s:vfm_opts_callback(opt)
@@ -169,12 +169,12 @@ function! VimFindsMeOpts(opt)
   if ! exists(opt)
     throw 'Unknown option ' . opt
   endif
-  call vfm#show_list_overlay(split(eval(opt), '\\\@<!,'))
-  call vfm#overlay_controller({
+  call overlay#show_list_overlay(split(eval(opt), '\\\@<!,'))
+  call overlay#overlay_controller({
         \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")<cr>'})
 endfunction
 
-function s:vfm_badd_callback()
+function! s:vfm_badd_callback()
   let buf_choice = getline('.')
   for buffer_name in vfm#select_buffer()
     if buffer_name != ''
@@ -195,9 +195,9 @@ endfunction
 function! VimFindsMeArgs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
-  call vfm#show_list_overlay(argv(), {'filter' : 0})
+  call overlay#show_list_overlay(argv(), {'filter' : 0})
   let g:vfm_auto_act_on_single_filter_result = auto_act
-  call vfm#overlay_controller(
+  call overlay#overlay_controller(
         \ {
         \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'
         \ })
@@ -211,9 +211,9 @@ function! VimFindsMeBufs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
   let buffer_names = map(vimple#ls#new().to_l('listed'), 'v:val.name')
-  call vfm#show_list_overlay(buffer_names, {'filter' : 0})
+  call overlay#show_list_overlay(buffer_names, {'filter' : 0})
   let g:vfm_auto_act_on_single_filter_result = auto_act
-  call vfm#overlay_controller(
+  call overlay#overlay_controller(
         \ {
         \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'
         \ })
