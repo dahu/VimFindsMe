@@ -35,12 +35,12 @@ endfunction
 
 function! vfm#select_line()
   let fname = getline('.')
-  call overlay#close_overlay()
+  call overlay#close()
   return fname
 endfunction
 
 function! vfm#select_buffer()
   let lines = getline(1,'$')
-  call overlay#close_overlay()
+  call overlay#close()
   return lines
 endfunction
