@@ -77,14 +77,25 @@ function! s:SID()
   return "<SNR>" . matchstr(expand('<sfile>'), '<SNR>\zs\d\+_\zeSID$')
 endfun
 
+" Common action set for VFM overlays
+
+let s:common_actions = {
+      \ 'q' : ':call overlay#close()<cr>'
+      \}
+
+function! s:actions(actions)
+  return extend(copy(s:common_actions), a:actions)
+endfunction
+
 " Public Interface: {{{1
+
 function! VimFindsMe(path)
   echom "Warning: The function name 'VimFindsMe' is deprecated. Use 'VimFindsMeFiles' instead."
   return VimFindsMeFiles(a:path)
 endfunction
 
 function! VimFindsMeFiles(path) "{{{2
-  return VFMWithFiles(a:path,  {'<enter>' : ':exe "edit " . fnameescape(overlay#select_line())<cr>'})
+  return VFMWithFiles(a:path,  s:actions({'<enter>' : ':exe "edit " . fnameescape(overlay#select_line())<cr>'}))
 endfunction
 
 function! VFMWithFiles(path, overlay_maps)
@@ -153,7 +164,7 @@ function! s:vfm_dirs_callback()
 endfunction
 
 function! VimFindsMeDirs()
-  let actions = {'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'}
+  let actions = s:actions({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'})
   call overlay#show(vfm#readfile(g:vfm_dirs_file), actions, {'use_split': g:vfm_use_split})
 endfunction
 
@@ -169,8 +180,9 @@ function! VimFindsMeOpts(opt)
   if ! exists(opt)
     throw 'Unknown option ' . opt
   endif
-  let actions = {
-        \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")<cr>'}
+  let actions = s:actions({
+        \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")<cr>'
+        \})
   call overlay#show(split(eval(opt), '\\\@<!,'), actions, {'use_split': g:vfm_use_split})
 endfunction
 
@@ -195,7 +207,7 @@ endfunction
 function! VimFindsMeArgs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
-  let actions = {'<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'}
+  let actions = s:actions({'<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'})
   call overlay#show(argv(), actions, {'filter' : 0, 'use_split': g:vfm_use_split})
   let g:vfm_auto_act_on_single_filter_result = auto_act
 endfunction
@@ -208,7 +220,7 @@ function! VimFindsMeBufs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
   let buffer_names = map(vimple#ls#new().to_l('listed'), 'v:val.name')
-  let actions = { '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>' \ }
+  let actions = s:actions({ '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>' })
   call overlay#show(buffer_names, actions, {'filter' : 0, 'use_split': g:vfm_use_split})
   let g:vfm_auto_act_on_single_filter_result = auto_act
 endfunction
@@ -246,7 +258,7 @@ command! -nargs=0 -bar          VFMCD       call VimFindsMeDirs()
 command! -nargs=1 -bar          VFMOpts     call VimFindsMeOpts(<q-args>)
 command! -nargs=0 -bar          VFMBufs     call VimFindsMeBufs()
 command! -nargs=0 -bar          VFMArglist  call VimFindsMeArgs()
-command! -nargs=0 -bar          VFMBadd     call VFMWithFiles(&path, {'<enter>' : ':call ' . s:SID() . 'vfm_badd_callback()<cr>'})
+command! -nargs=0 -bar          VFMBadd     call VFMWithFiles(&path, s:action({'<enter>' : ':call ' . s:SID() . 'vfm_badd_callback()<cr>'}))
 command! -nargs=0 -bar -range=% VFMArgs
       \ exe 'args ' . join(getline(<line1>,<line2>), ' ')
 command! -nargs=0 -bar -range=% VFMArgadd
