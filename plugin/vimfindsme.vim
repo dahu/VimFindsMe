@@ -84,7 +84,7 @@ function! VimFindsMe(path)
 endfunction
 
 function! VimFindsMeFiles(path) "{{{2
-  return VFMWithFiles(a:path,  {'<enter>' : ':exe "edit " . fnameescape(vfm#select_line())<cr>'})
+  return VFMWithFiles(a:path,  {'<enter>' : ':exe "edit " . fnameescape(overlay#select_line())<cr>'})
 endfunction
 
 function! VFMWithFiles(path, overlay_maps)
@@ -138,28 +138,27 @@ function! VFMWithFiles(path, overlay_maps)
         \. ' 2>/dev/null'
 
   if g:vfm_use_system_find
-    call overlay#show_list(vfm#uniq(sort(split(system(find_cmd), "\n"))), overlay_options)
+    call overlay#show(vfm#uniq(sort(split(system(find_cmd), "\n"))), a:overlay_maps, overlay_options)
   else
     let dotted = filter(vfm#globpath(join(paths, ','), '**/.*', 0, 1), 'v:val !~ "\\.\\.\\?$"')
     let files  = vfm#uniq(sort(dotted + vfm#globpath(join(paths, ','), '**/*', 0, 1)))
-    call overlay#show_list(files, overlay_options)
+    call overlay#show(files, a:overlay_maps, overlay_options)
   endif
-  call overlay#controller(a:overlay_maps)
 
 endfunction "}}}2
 
 function! s:vfm_dirs_callback()
-  exe ':cd ' . vfm#select_line()
+  exe ':cd ' . overlay#select_line()
   echo getcwd()
 endfunction
 
 function! VimFindsMeDirs()
-  call overlay#show_list(vfm#readfile(g:vfm_dirs_file), {'use_split': g:vfm_use_split})
-  call overlay#controller({'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'})
+  let actions = {'<enter>' : ':call ' . s:SID() . 'vfm_dirs_callback()<cr>'}
+  call overlay#show(vfm#readfile(g:vfm_dirs_file), actions, {'use_split': g:vfm_use_split})
 endfunction
 
 function! s:vfm_opts_callback(opt)
-  let val = join(map(vfm#select_buffer()
+  let val = join(map(overlay#select_buffer()
         \ , 'substitute(v:val, "\\\\\\@<!,", "\\\\&", "g")')
         \ , ',')
   exe 'let &' . a:opt . ' =  "' . escape(val, '\\"') . '"'
@@ -170,14 +169,14 @@ function! VimFindsMeOpts(opt)
   if ! exists(opt)
     throw 'Unknown option ' . opt
   endif
-  call overlay#show_list(split(eval(opt), '\\\@<!,'), {'use_split': g:vfm_use_split})
-  call overlay#controller({
-        \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")<cr>'})
+  let actions = {
+        \ '<enter>' : ':call ' . s:SID() . 'vfm_opts_callback("' . opt[1:] . '")<cr>'}
+  call overlay#show(split(eval(opt), '\\\@<!,'), actions, {'use_split': g:vfm_use_split})
 endfunction
 
 function! s:vfm_badd_callback()
   let buf_choice = getline('.')
-  for buffer_name in vfm#select_buffer()
+  for buffer_name in overlay#select_buffer()
     if buffer_name != ''
       exe 'badd ' . buffer_name
     endif
@@ -189,19 +188,16 @@ endfunction
 
 function! s:vfm_args_callback()
   let arg = line('.')
-  exe ':args ' . join(vfm#select_buffer(), ' ')
+  exe ':args ' . join(overlay#select_buffer(), ' ')
   exe 'argument ' . arg
 endfunction
 
 function! VimFindsMeArgs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
-  call overlay#show_list(argv(), {'filter' : 0, 'use_split': g:vfm_use_split})
+  let actions = {'<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'}
+  call overlay#show(argv(), actions, {'filter' : 0, 'use_split': g:vfm_use_split})
   let g:vfm_auto_act_on_single_filter_result = auto_act
-  call overlay#controller(
-        \ {
-        \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'
-        \ })
 endfunction
 
 function! VimFindsMeBufs()
@@ -212,12 +208,9 @@ function! VimFindsMeBufs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
   let buffer_names = map(vimple#ls#new().to_l('listed'), 'v:val.name')
-  call overlay#show_list(buffer_names, {'filter' : 0, 'use_split': g:vfm_use_split})
+  let actions = { '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>' \ }
+  call overlay#show(buffer_names, actions, {'filter' : 0, 'use_split': g:vfm_use_split})
   let g:vfm_auto_act_on_single_filter_result = auto_act
-  call overlay#controller(
-        \ {
-        \  '<enter>' : ':call ' . s:SID() . 'vfm_args_callback()<cr>'
-        \ })
 endfunction
 
 function! VFMArgument(arg)

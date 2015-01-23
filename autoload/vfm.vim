@@ -32,15 +32,3 @@ function! vfm#store_directory()
     call writefile(vfm#uniq(sort(dirs)), g:vfm_dirs_file)
   endif
 endfunction
-
-function! vfm#select_line()
-  let fname = getline('.')
-  call overlay#close()
-  return fname
-endfunction
-
-function! vfm#select_buffer()
-  let lines = getline(1,'$')
-  call overlay#close()
-  return lines
-endfunction
