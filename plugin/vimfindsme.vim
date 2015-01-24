@@ -236,7 +236,7 @@ function! VimFindsMeBufs()
   let auto_act = g:vfm_auto_act_on_single_filter_result
   let g:vfm_auto_act_on_single_filter_result = 0
   let buffer_names = map(vimple#ls#new().to_l('listed'), 'v:val.name')
-  call s:vfm_overlay(buffer_names, s:vfm_enter_action('vfm_args_callback()>'), {'filter' : 0})
+  call s:vfm_overlay(buffer_names, s:vfm_enter_action('vfm_args_callback()'), {'filter' : 0})
   let g:vfm_auto_act_on_single_filter_result = auto_act
 endfunction
 
