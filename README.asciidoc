@@ -20,10 +20,9 @@ http://of-vim-and-vigor.blogspot.com/[beverages].
 
 .Dependencies:
 
-* [optional] The system ++find++ command
+* https://github.com/dahu/Vimple[Vimple]
 
-* [optional] https://github.com/dahu/Vimple[Vimple] (for the
-  https://github.com/dahu/Vimple[Vimple] Filter and :VFMBufs)
+* [optional] The system ++find++ command
 
 ++VFMEdit++ relies on your +path+ option. Setting this to a Good
 Value is crucial for getting the best out of VFM. Begin with this
