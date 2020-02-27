@@ -6,10 +6,8 @@ function! vfm#globpath(path, pattern, nosuf, aslist)
   endif
 endfunction
 
+" Don't just rely on internal uniq() because it assumes a sorted list.
 function! vfm#uniq(list)
-  if exists('*uniq')
-    return uniq(a:list)
-  endif
   let mlist = copy(a:list)
   let idx = len(a:list) - 1
   while idx >= 1

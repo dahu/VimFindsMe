@@ -256,6 +256,9 @@ function! VFMArgument(arg)
       echohl None
     else
       exe 'argedit ' . fnameescape(bufname)
+      let args = join(vfm#uniq(argv()), ' ')
+      silent! argdel *
+      silent! exe 'argadd ' . args
     endif
   else
     throw "Unexpected argument type: " . type(arg)
